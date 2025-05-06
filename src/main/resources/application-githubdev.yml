@@ -1,0 +1,56 @@
+# 깃허브 업로드용 yml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/studygroup?serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+#  redis:
+#    host: localhost
+#    port: 6379
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace  # 바인딩 파라미터 출력용
+
+
+
+
+#성능을 위한 MySQL 커넥션 풀과 Redis 커넥션 풀을 설정
+#spring:
+#  datasource:
+#    hikari:
+#      maximum-pool-size: 10  # MySQL 커넥션 풀 크기 설정
+#      minimum-idle: 5
+#
+#
+#spring:
+#  redis:
+#    jedis:
+#      pool:
+#        max-active: 10
+#        max-idle: 5
+#        min-idle: 1
+
+
+# Hibernate 2차 캐시 설정(성능을 향상시킬 수 있는 2차 캐시를 활성화) 공부해볼것
+#spring:
+#  jpa:
+#    properties:
+#      hibernate:
+#        cache:
+#          use_second_level_cache: true
+#          use_query_cache: true

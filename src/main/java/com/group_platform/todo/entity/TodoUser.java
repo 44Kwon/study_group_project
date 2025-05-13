@@ -1,7 +1,6 @@
-package com.group_platform.comment.entity;
+package com.group_platform.todo.entity;
 
-import com.group_platform.audit.BaseEntity;
-import com.group_platform.post.entity.Post;
+
 import com.group_platform.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,21 +9,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "todo_users")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Comment extends BaseEntity {
+public class TodoUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, length = 500)
-    private String content;
+
+    private boolean isCompleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @JoinColumn(name = "todo_id")
+    private Todo todo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

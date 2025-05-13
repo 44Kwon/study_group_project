@@ -1,12 +1,16 @@
 package com.group_platform.sutdygroup.entity;
 
 import com.group_platform.audit.BaseEntity;
+import com.group_platform.todo.entity.Todo;
 import com.group_platform.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "study_groups")
@@ -40,4 +44,8 @@ public class StudyGroup extends BaseEntity {
     }
 
     private String imageUrl; // 그룹의 이미지 URL
+
+    @OneToMany(mappedBy = "studyGroup",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    private List<Todo> todos = new ArrayList<>();
+
 }

@@ -4,6 +4,9 @@ import com.group_platform.audit.BaseEntity;
 import com.group_platform.comment.entity.Comment;
 import com.group_platform.post.bookmark.PostBookmark;
 import com.group_platform.post.entity.Post;
+import com.group_platform.qna.answer.entity.QnaAnswer;
+import com.group_platform.qna.question.entity.QnaQuestion;
+import com.group_platform.todo.entity.TodoUser;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -62,4 +65,13 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
     private List<PostBookmark> postBookmarks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    private List<QnaQuestion> questions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    private List<QnaAnswer> answers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    private List<TodoUser> todoUsers = new ArrayList<>();
 }

@@ -16,17 +16,19 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 @Getter
 public class PostLike {
-    @Embedded
+    @EmbeddedId
     private PostLikeId id;
 
     @CreationTimestamp
     private Long createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)  //기본값이 Eager이기 때문에 Lazy로 변경
+    @MapsId("postId")
     @JoinColumn(name = "post_id", insertable = false, updatable = false)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)  //기본값이 Eager이기 때문에 Lazy로 변경
+    @MapsId("userId")
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 }

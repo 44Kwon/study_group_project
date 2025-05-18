@@ -2,6 +2,8 @@ package com.group_platform.user.entity;
 
 import com.group_platform.audit.BaseEntity;
 import com.group_platform.comment.entity.Comment;
+import com.group_platform.exception.BusinessLogicException;
+import com.group_platform.exception.ExceptionCode;
 import com.group_platform.post.bookmark.PostBookmark;
 import com.group_platform.post.entity.Post;
 import com.group_platform.qna.answer.entity.QnaAnswer;
@@ -16,7 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class User extends BaseEntity {
@@ -25,7 +27,12 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, updatable = false)
+    //로그인 아이디
+    @Column(nullable = false, updatable = false, unique = true, length = 50)
+    private String username;
+
+    //이메일은 필수가 아님
+    @Column(unique = true)
     private String email;
 
     @Column(nullable = false, unique = true, length = 100)
@@ -34,7 +41,8 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String password;
 
-    private String profileImageUrl;
+    //이미지 나중에
+//    private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -74,4 +82,26 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
     private List<TodoUser> todoUsers = new ArrayList<>();
+
+    public void changeNickname(String nickname) {
+        if (nickname == null || nickname.isBlank()) {
+            throw new BusinessLogicException(ExceptionCode.USER_INVALID_NICKNAME);
+        }
+        this.nickname = nickname;
+    }
+
+    public void changeEmail(String email) {
+        this.email = email;
+    }
+
+    public void changePassword(String password) {
+        this.password = password;
+    }
+
+    //회원탈퇴
+    public void withdraw(UserStatus userStatus) {
+        if (userStatus == UserStatus.USER_ACTIVE) {
+            this.userStatus = UserStatus.USER_WITHDRAW;
+        }
+    }
 }

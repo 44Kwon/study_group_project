@@ -8,6 +8,7 @@ import com.group_platform.user.entity.User;
 import com.group_platform.user.service.UserService;
 import com.group_platform.util.UriComponent;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,6 @@ public class UserController {
     //회원가입
     @PostMapping("/join")
     public ResponseEntity<?> createUser(@RequestBody @Valid UserDto.CreateRequest createRequest, HttpServletRequest request) {
-        request.getSession(false); // 세션을 생성하지 않음
         Long id = userService.creatUser(createRequest);
         URI uri = UriComponent.createUri(USER_DEFAULT_URI, id);
         return ResponseEntity.created(uri).build();

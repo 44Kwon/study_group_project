@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-// 로그인 처리시 내가 만든 예외 메시지를 JSON으로 응답처리 하는 클래스
+// 인가(Authorization)가 필요한 리소스에 인증되지 않은 사용자가 접근할 때 호출됨.
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -24,7 +24,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("error", "Unauthorized");
-        responseBody.put("message", authException.getMessage());
+//        responseBody.put("message", authException.getMessage());
+        responseBody.put("message", "로그인이 필요합니다.");
 
         response.getWriter().write(objectMapper.writeValueAsString(responseBody));
     }

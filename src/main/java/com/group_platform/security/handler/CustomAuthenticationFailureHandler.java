@@ -31,6 +31,9 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         responseBody.put("error", "Unauthorized");
         responseBody.put("message", exception.getMessage());
 
+        //로그 저장(향후 추가)
+        //실패 횟수 제한, IP 차단 로직 삽입 (향후 추가)
+
         // ObjectMapper로 JSON 변환 후 출력
         response.getWriter().write(objectMapper.writeValueAsString(responseBody));
     }

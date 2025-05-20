@@ -14,6 +14,7 @@ public class UserDto {
     @Getter
     @Setter
     @NoArgsConstructor
+    //@JsonIgnoreProperties(ignoreUnknown = false) => 허용되지 않은 값이 추가로 들어오면 튕겨내기
     public static class CreateRequest {
 
         @NotBlank(message = "아이디를 입력해주세요.")

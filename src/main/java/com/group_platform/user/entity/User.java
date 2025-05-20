@@ -12,6 +12,7 @@ import com.group_platform.todo.entity.TodoUser;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,10 +47,12 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default    //안붙이니 오류가 남 => 자동매퍼 사용하니 impl에서 빌더 사용해서 오류가 남
     private UserStatus userStatus = UserStatus.USER_ACTIVE;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Role role = Role.USER;
 
     @Getter
@@ -103,5 +106,9 @@ public class User extends BaseEntity {
         if (userStatus == UserStatus.USER_ACTIVE) {
             this.userStatus = UserStatus.USER_WITHDRAW;
         }
+    }
+
+    public void updateEncodingPassword(String encodingPassword) {
+        this.password = encodingPassword;
     }
 }

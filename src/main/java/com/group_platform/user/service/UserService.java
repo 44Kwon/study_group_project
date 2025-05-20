@@ -8,6 +8,7 @@ import com.group_platform.user.entity.User;
 import com.group_platform.user.mapper.UserMapper;
 import com.group_platform.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     //회원가입
     public Long creatUser(UserDto.CreateRequest createRequest) {
@@ -38,7 +40,9 @@ public class UserService {
             validateEmail(createUser.getEmail());
         }
 
-        //비밀번호 암호화 필요(나중에)
+        //비밀번호 암호화
+        createUser.updateEncodingPassword(passwordEncoder.encode(createUser.getPassword()));
+
 
         User savedUser = userRepository.save(createUser);
 
@@ -94,7 +98,7 @@ public class UserService {
             throw new BusinessLogicException(ExceptionCode.PASSWORD_SAME_AS_OLD);
         }
 
-        user.changePassword(updatePasswordRequest.getNewPw());
+        user.changePassword(passwordEncoder.encode(updatePasswordRequest.getNewPw()));
     }
 
     //회원 조회(내 페이지)

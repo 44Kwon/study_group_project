@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,9 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
         // 에러 정보를 담을 DTO나 Map 생성
         Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
         responseBody.put("error", "Unauthorized");
+        //세부적인 message 처리 나중에(향후)
         responseBody.put("message", exception.getMessage());
 
         //로그 저장(향후 추가)

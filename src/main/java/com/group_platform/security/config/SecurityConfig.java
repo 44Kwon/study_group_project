@@ -2,6 +2,7 @@ package com.group_platform.security.config;
 
 import com.group_platform.security.entrypoint.CustomAuthenticationEntryPoint;
 import com.group_platform.security.filter.CustomAuthenticationFilter;
+import com.group_platform.security.handler.CustomAccessDeniedHandler;
 import com.group_platform.security.handler.CustomAuthenticationFailureHandler;
 import com.group_platform.security.handler.CustomAuthenticationSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,11 +30,13 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-    public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler, CustomAuthenticationFailureHandler customAuthenticationFailureHandler) {
+    public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler, CustomAuthenticationFailureHandler customAuthenticationFailureHandler, CustomAccessDeniedHandler customAccessDeniedHandler) {
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
         this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
     }
 
     @Bean
@@ -89,10 +92,12 @@ public class SecurityConfig {
         );
 
 
-        //로그인 시 에러발생 하면 설정 클래스로
+        //인가 관련 에러 처리
         http
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(customAuthenticationEntryPoint));
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                );
 
         //cors 설정
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));

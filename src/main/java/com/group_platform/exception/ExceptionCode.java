@@ -13,6 +13,8 @@ public enum ExceptionCode {
     USER_EMAIL_CANNOT_UPDATE(400, "이메일은 수정할 수 없습니다"),
     USER_INVALID_NICKNAME(400, "닉네임을 비워둘 수 없습니다"),
 
+    SAME_EMAIL(400, "현재 사용 중인 이메일과 동일합니다."),
+    SAME_NICKNAME(400, "현재 사용 중인 닉네임과 동일합니다."),
 
     //비밀번호 관련 오류
     PASSWORD_MISMATCH(400, "현재 비밀번호가 올바르지 않습니다"),

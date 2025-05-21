@@ -24,7 +24,7 @@ public class GlobalException {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception e) {
         // 로깅 중요!
-        log.error("서부 오류 발생하였습니다 : {}", e.getMessage(), e);
+        log.error("서버 오류 발생하였습니다 : {}", e.getMessage(), e);
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

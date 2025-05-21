@@ -16,6 +16,7 @@ import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -43,8 +44,7 @@ public class UserController {
     //회원 정보 수정
     @PatchMapping("/users/my")
     public ResponseEntity<?> updateUser(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UserDto.UpdateRequest updateRequest) {
-        updateRequest.setId(userDetails.getId());
-        UserDto.updateResponse updateResponse = userService.updateUser(updateRequest);
+        UserDto.updateResponse updateResponse = userService.updateUser(userDetails.getId(),updateRequest);
         return new ResponseEntity<>(
                 new ResponseDto.SingleResponseDto<>(updateResponse), HttpStatus.OK);
     }
@@ -69,8 +69,15 @@ public class UserController {
 
     //회원 탈퇴
     @DeleteMapping("/users/my")
-    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletRequest request) {
         userService.deleteUser(userDetails.getId());
+
+        //세션 무효화
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     //프로필 사진 업로드 및 수정

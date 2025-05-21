@@ -33,12 +33,10 @@ public class UserDto {
     @NoArgsConstructor
     public static class UpdateRequest {
 
-        private Long id;
-
         @Email(message = "이메일 형식이 올바르지 않습니다.")
         private String email;
 
-        @NotBlank(message = "닉네임을 입력햐주세요.")
+        @NotBlank(message = "닉네임을 입력해주세요.")
         private String nickname;
     }
 

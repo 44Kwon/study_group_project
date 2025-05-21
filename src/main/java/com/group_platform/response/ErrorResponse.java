@@ -24,6 +24,7 @@ public class ErrorResponse {
     }
 
     public ErrorResponse(List<FieldError> fieldErrors, List<ConstraintViolationError> violationErrors) {
+        this(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase()); //400 고정
         this.fieldErrors = fieldErrors;
         this.violationErrors = violationErrors;
     }

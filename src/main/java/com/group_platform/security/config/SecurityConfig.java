@@ -2,6 +2,7 @@ package com.group_platform.security.config;
 
 import com.group_platform.security.entrypoint.CustomAuthenticationEntryPoint;
 import com.group_platform.security.filter.CustomAuthenticationFilter;
+import com.group_platform.security.filter.SessionValidationFilter;
 import com.group_platform.security.handler.CustomAccessDeniedHandler;
 import com.group_platform.security.handler.CustomAuthenticationFailureHandler;
 import com.group_platform.security.handler.CustomAuthenticationSuccessHandler;
@@ -17,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,12 +33,14 @@ public class SecurityConfig {
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final SessionValidationFilter sessionValidationFilter;
 
-    public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler, CustomAuthenticationFailureHandler customAuthenticationFailureHandler, CustomAccessDeniedHandler customAccessDeniedHandler) {
+    public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler, CustomAuthenticationFailureHandler customAuthenticationFailureHandler, CustomAccessDeniedHandler customAccessDeniedHandler, SessionValidationFilter sessionValidationFilter) {
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
         this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
         this.customAccessDeniedHandler = customAccessDeniedHandler;
+        this.sessionValidationFilter = sessionValidationFilter;
     }
 
     @Bean
@@ -61,7 +65,7 @@ public class SecurityConfig {
         // 인가처리 작업
         http
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/", "/api/login","/join").permitAll()
+                        .requestMatchers("/", "/api/login","/join","/api/test").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
 //                        .requestMatchers("/my/**").hasAnyRole("ADMIN","USER")
                         .anyRequest().authenticated()   //authenticated : 로그인 된 사용자 모두, denyAll은 전부 막음
@@ -72,25 +76,24 @@ public class SecurityConfig {
 
         //세션설정방법 (다중로그인 관리)
         http
-                .sessionManagement((auth)->auth
+                .sessionManagement((session)->session
+                        //세션고정공격보호
+                        //로그인 성공 시 세션 ID를 바꿔주는 안전장치
+//                        .sessionFixation().changeSessionId()
+                        .sessionFixation().newSession()
+                        // default가 IF_REQUIRED라 설정할 필요없지만 명시해준다
+                        // 이것으로 세션방식 로그인에서 HttpServletRequest같은걸 이용해서 직접 세션을 생성해서 넣어주는걸 안해도 된다.(알아서 해줌)
+                        //        ALWAYS - 무조건 세션을 생성
+                        //        IF_REQUIRED (기본값) - 필요할 때만 세션을 생성 (보통 로그인 시 생성)
+                        //        NEVER - 세션을 생성하지 않지만, 기존 세션이 있으면 사용
+                        //        STATELESS - 아예 세션을 생성하거나 사용X (REST API 무상태)
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1) //동시접속 중복로그인 갯수
                         //true : 초과시 새로운 로그인 차단, false : 초과시 기존 세션 하나 삭제
-                        .maxSessionsPreventsLogin(true));   //위에 동시접속 갯수 초과시 처리 방법
+                        .maxSessionsPreventsLogin(true) //동시접속 갯수 초과시 처리 방법
 
 
-        http.sessionManagement(session -> session
-                //세션고정공격보호
-                //로그인 성공 시 세션 ID를 바꿔주는 안전장치
-                .sessionFixation().changeSessionId()
-                // default가 IF_REQUIRED라 설정할 필요없지만 명시해준다
-                // 이것으로 세션방식 로그인에서 HttpServletRequest같은걸 이용해서 직접 세션을 생성해서 넣어주는걸 안해도 된다.(알아서 해줌)
-                //        ALWAYS - 무조건 세션을 생성
-                //        IF_REQUIRED (기본값) - 필요할 때만 세션을 생성 (보통 로그인 시 생성)
-                //        NEVER - 세션을 생성하지 않지만, 기존 세션이 있으면 사용
-                //        STATELESS - 아예 세션을 생성하거나 사용X (REST API 무상태)
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-        );
-
+                );
 
         //인가 관련 에러 처리
         http
@@ -111,8 +114,11 @@ public class SecurityConfig {
                             response.setStatus(HttpServletResponse.SC_OK);  // 200 OK 반환
                         })
                         .invalidateHttpSession(true)           // 세션 무효화
-                        .deleteCookies("JSESSIONID")           // 쿠키 삭제 (세션 ID 등)
+                        .deleteCookies("SESSION")           // 쿠키 삭제 (세션 ID 등)
                 );
+
+        // 삭제한 유저에 대해 만약에라도 redis 남아있는 세션으로 요청을 보내는걸 방지(인증된 클라이언트인척)
+        http.addFilterAfter(sessionValidationFilter, SecurityContextHolderFilter.class);
 
         // 기본 UsernamePasswordAuthenticationFilter 위치에 커스텀 필터 등록
         http.addFilterAt(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

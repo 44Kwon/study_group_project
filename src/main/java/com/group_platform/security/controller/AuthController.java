@@ -1,20 +1,25 @@
 package com.group_platform.security.controller;
 
 import com.group_platform.security.dto.LoginDto;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Validated
 public class AuthController {
+
+    @GetMapping("/api/test")
+    public ResponseEntity<?> test(HttpServletRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authentication: " + auth);
+        return ResponseEntity.ok("OK");
+    }
 
     // 보통 Security를 쓰면 필터를 통해서 처리한다
     // 로그인 같은 경우 customfilter를 통해 처리하고

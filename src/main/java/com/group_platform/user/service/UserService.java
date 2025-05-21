@@ -51,24 +51,17 @@ public class UserService {
 
 
     //회원변경(보통 회원 정보 다 던져줘야 하나)
-    public UserDto.updateResponse updateUser(UserDto.UpdateRequest updateRequest) {
+    public UserDto.updateResponse updateUser(Long userId, UserDto.UpdateRequest updateRequest) {
         User updateUser = userMapper.UpdateRequestToUser(updateRequest);
         //유저가 존재하는지 검증
-        User user = validateUser(updateUser.getUsername());
+        User user = validateUserWithUserId(userId);
 
         //넘어온 값들에 대한 검증
-        //닉네임 검증
-        if(updateUser.getNickname() != null && !updateUser.getNickname().equals(user.getNickname())) {
-            validateNickname(updateUser.getNickname());
-        }
+        //닉네임 변경검증
+        validateNicknameUpdate(updateUser, user);
 
-        //이메일 검증
-        if(updateUser.getEmail() != null && user.getEmail() == null) {
-            validateEmail(updateUser.getEmail());
-        } else {
-            //이메일 수정 시 에러발생
-            throw new BusinessLogicException(ExceptionCode.USER_EMAIL_CANNOT_UPDATE);
-        }
+        //이메일 변경검증
+        validateEmailUpdate(updateUser, user);
 
         //수정로직
         Optional.ofNullable(updateUser.getNickname())
@@ -82,19 +75,42 @@ public class UserService {
         return userMapper.UserToUpdateResponse(user);
     }
 
+    private void validateEmailUpdate(User updateUser, User user) {
+        //guard clause 패턴
+        if (updateUser.getEmail() == null) {
+            return; // 변경 요청 없음, 그냥 종료
+        }
+        if (updateUser.getEmail().equals(user.getEmail())) {
+            throw new BusinessLogicException(ExceptionCode.SAME_EMAIL);
+        }
+        if (user.getEmail() == null) {
+            validateEmail(updateUser.getEmail());
+            return;
+        }
+
+        throw new BusinessLogicException(ExceptionCode.USER_EMAIL_CANNOT_UPDATE);
+    }
+
+    private void validateNicknameUpdate(User updateUser, User user) {
+        if(updateUser.getNickname() != null && updateUser.getNickname().equals(user.getNickname())) {
+            throw new BusinessLogicException(ExceptionCode.SAME_NICKNAME);
+        } else if (updateUser.getNickname() != null) {
+            validateNickname(updateUser.getNickname());
+        }
+    }
+
     //비밀번호 변경
     public void updatePassword(Long userId, UserDto.UpdatePasswordRequest updatePasswordRequest) {
         User user = validateUserWithUserId(userId);
 
         // 나중에 변경해야 함(Encoder 도입 후)
-        if (user.getPassword() != updatePasswordRequest.getCurrentPw()) {
+        if (!passwordEncoder.matches(updatePasswordRequest.getCurrentPw(),user.getPassword())) {
             throw new BusinessLogicException(ExceptionCode.PASSWORD_MISMATCH);
         }
-
         if (updatePasswordRequest.getNewPw() == null || updatePasswordRequest.getNewPw().isBlank()) {
             throw new IllegalArgumentException("새로운 비밀번호를 입력해주세요");
         }
-        if (updatePasswordRequest.getNewPw().equals(user.getPassword())) {
+        if (passwordEncoder.matches(updatePasswordRequest.getNewPw(),user.getPassword())) {
             throw new BusinessLogicException(ExceptionCode.PASSWORD_SAME_AS_OLD);
         }
 
@@ -105,6 +121,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponseDto getUser(Long userId) {
         User user = validateUserWithUserId(userId);
+        System.out.println(user.getUsername());
         return userMapper.UserToUserResponseDto(user);
     }
 
@@ -142,12 +159,6 @@ public class UserService {
         if (userRepository.existsByNickname(nickname)) {
             throw new BusinessLogicException(ExceptionCode.USER_NICKNAME_DUPLICATED);
         }
-    }
-
-    //아이디로 회원이 존재하는지(나중에 로그인 구현 시 변경 소지 있음)
-    private User validateUser(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(()-> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
     }
 
     //회원키로 회원이 존재하는지

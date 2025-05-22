@@ -76,6 +76,9 @@ public class UserService {
     }
 
     private void validateEmailUpdate(User updateUser, User user) {
+        // 현재 프로젝트에서 Email 업데이트 검증은
+        // 초기 회원가입 시 Email을 작성하지 않은 사람에 한해서만 업데이트 가능하도록 했다.
+
         //guard clause 패턴
         if (updateUser.getEmail() == null) {
             return; // 변경 요청 없음, 그냥 종료
@@ -103,7 +106,6 @@ public class UserService {
     public void updatePassword(Long userId, UserDto.UpdatePasswordRequest updatePasswordRequest) {
         User user = validateUserWithUserId(userId);
 
-        // 나중에 변경해야 함(Encoder 도입 후)
         if (!passwordEncoder.matches(updatePasswordRequest.getCurrentPw(),user.getPassword())) {
             throw new BusinessLogicException(ExceptionCode.PASSWORD_MISMATCH);
         }
@@ -162,7 +164,7 @@ public class UserService {
     }
 
     //회원키로 회원이 존재하는지
-    private User validateUserWithUserId(Long userId) {
+    public User validateUserWithUserId(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
     }

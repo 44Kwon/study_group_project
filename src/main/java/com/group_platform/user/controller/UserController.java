@@ -56,12 +56,17 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    //회원 정보 조회(자신) - 로그인 방식 구현했을 때 따로 만들것
+    //회원 정보 조회(자신) - 나중에 타인 것과 다르게 설정을 할 것
+    @GetMapping("/users/my")
+    public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        UserResponseDto userResponse = userService.getUser(userDetails.getId());
+        return new ResponseEntity<>(
+                new ResponseDto.SingleResponseDto<>(userResponse), HttpStatus.OK);
+    }
 
     //회원 정보 조회(타인)
-    //최소 정보만 수정하기
     @GetMapping("/users/{user-id}")
-    public ResponseEntity<?> getUser(@PathVariable("user-id") @Positive Long userId) {
+    public ResponseEntity<?> getOtherUserInfo(@PathVariable("user-id") @Positive Long userId) {
         UserResponseDto userResponse = userService.getUser(userId);
         return new ResponseEntity<>(
                 new ResponseDto.SingleResponseDto<>(userResponse), HttpStatus.OK);
@@ -81,8 +86,4 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     //프로필 사진 업로드 및 수정
-
-    //로그인
-
-    //로그아웃
 }

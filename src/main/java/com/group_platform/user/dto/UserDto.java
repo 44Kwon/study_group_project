@@ -3,6 +3,7 @@ package com.group_platform.user.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -36,7 +37,7 @@ public class UserDto {
         @Email(message = "이메일 형식이 올바르지 않습니다.")
         private String email;
 
-        @NotBlank(message = "닉네임을 입력해주세요.")
+        @Size(min = 2, max=10, message = "닉네임은 2~10자 이어야 합니다")
         private String nickname;
     }
 

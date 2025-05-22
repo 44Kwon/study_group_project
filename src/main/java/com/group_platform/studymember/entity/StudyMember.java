@@ -1,20 +1,16 @@
 package com.group_platform.studymember.entity;
 
-import com.group_platform.audit.BaseEntity;
 import com.group_platform.sutdygroup.entity.StudyGroup;
 import com.group_platform.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Table(name = "study_members")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 //StudyGroup과 user의 중간테이블
@@ -35,6 +31,7 @@ public class StudyMember {
     //상태(활성,비활성 => 탈퇴),
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private ActiveStatus status = ActiveStatus.ACTIVE;
 
     //그룹에서의 역할(Leader, Members)
@@ -56,5 +53,18 @@ public class StudyMember {
 
     public enum ActiveStatus{
         ACTIVE, INACTIVE;
+    }
+
+    public static StudyMember createStudyMember(StudyGroup studyGroup, User user, InGroupRole role){
+        return StudyMember.builder()
+                .studyGroup(studyGroup)
+                .user(user)
+                .role(role)
+                .build();
+    }
+
+    //활성,비활성(그룹탈퇴) 상태변경
+    public void changeStatus(ActiveStatus status){
+        this.status = status;
     }
 }

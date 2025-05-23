@@ -12,4 +12,5 @@ public interface StudyGroupMapper {
     StudyGroup createRequestToStudyGroup(StudyGroupDto.CreateRequest createRequest);
     StudyGroup updateRequestToStudyGroup(StudyGroupDto.UpdateRequest updateRequest);
     StudyGroupResponseDto studyGroupToStudyGroupResponseDto(StudyGroup studyGroup);
+    StudyGroupDto.ResponseList studyGroupToStudyGroupResponseListDto(StudyGroup studyGroup);
 }

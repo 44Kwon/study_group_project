@@ -1,7 +1,10 @@
 package com.group_platform.sutdygroup.entity;
 
 import com.group_platform.audit.BaseEntity;
+import com.group_platform.category.entity.Category;
 import com.group_platform.category.entity.CategoryType;
+import com.group_platform.post.entity.Post;
+import com.group_platform.qna.question.entity.QnaQuestion;
 import com.group_platform.studymember.entity.StudyMember;
 import com.group_platform.todo.entity.Todo;
 import com.group_platform.user.entity.User;
@@ -52,16 +55,30 @@ public class StudyGroup extends BaseEntity {
 
 //    private String imageUrl; // 그룹의 이미지 URL 나중에 처리
 
+    //studymembers는 casacde처리하지말지 결정할 것(내가 있었던 그룹 목록)
     @OneToMany(mappedBy = "studyGroup", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
     private List<StudyMember> studyMembers = new ArrayList<>();
 
     @OneToMany(mappedBy = "studyGroup",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
     private List<Todo> todos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "studyGroup",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    private List<Category> categories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyGroup",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyGroup",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    private List<QnaQuestion> questions = new ArrayList<>();
+
+
     //연관관계 메서드
-    public void addStudyMember(User user, StudyMember.InGroupRole role) {
+    //그룹 만들기
+    public StudyMember addStudyMember(User user, StudyMember.InGroupRole role) {
         StudyMember studyMember = StudyMember.createStudyMember(this, user, role);
         studyMembers.add(studyMember);
+
+        return studyMember;
     }
 
     public void changeName(String name) {
@@ -80,5 +97,9 @@ public class StudyGroup extends BaseEntity {
     public void changeStatusToDelete(StudyMember studyMember) {
         this.status = GroupStatus.CLOSED;
         studyMember.changeStatus(StudyMember.ActiveStatus.INACTIVE);
+    }
+
+    public void changeGroupStatus(StudyGroup.GroupStatus status) {
+        this.status = status;
     }
 }

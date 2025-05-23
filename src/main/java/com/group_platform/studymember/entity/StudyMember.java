@@ -7,6 +7,9 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "study_members")
 @Getter
@@ -22,11 +25,11 @@ public class StudyMember {
     @CreationTimestamp
     @Column(nullable = false)
     //그룹 가입날
-    private Long joinDate;
+    private LocalDateTime joinDate;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private Long lastModifiedDate;
+    private LocalDateTime lastModifiedDate;
 
     //상태(활성,비활성 => 탈퇴),
     @Enumerated(EnumType.STRING)
@@ -66,5 +69,14 @@ public class StudyMember {
     //활성,비활성(그룹탈퇴) 상태변경
     public void changeStatus(ActiveStatus status){
         this.status = status;
+    }
+
+    public void changeRole(InGroupRole role){
+        this.role = role;
+    }
+
+    public void giveLeaderRole(StudyMember newLeader){
+        this.role = InGroupRole.MEMBER;
+        newLeader.role = InGroupRole.LEADER;
     }
 }

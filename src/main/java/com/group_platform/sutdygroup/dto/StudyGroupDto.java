@@ -38,4 +38,17 @@ public class StudyGroupDto {
 
         private CategoryType type;
     }
+
+    @Getter
+    @NoArgsConstructor
+    @Setter
+    //리스트용 response dto
+    public static class ResponseList {
+        private Long id;
+        private String name;
+        private String description;
+        private int currentMember;
+        private int maxMember;
+        private CategoryType type;
+    }
 }

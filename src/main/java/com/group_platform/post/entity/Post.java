@@ -2,6 +2,7 @@ package com.group_platform.post.entity;
 
 import com.group_platform.audit.BaseEntity;
 import com.group_platform.comment.entity.Comment;
+import com.group_platform.sutdygroup.entity.StudyGroup;
 import com.group_platform.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,10 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_group_id")
+    private StudyGroup studyGroup;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();

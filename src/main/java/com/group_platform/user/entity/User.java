@@ -6,6 +6,7 @@ import com.group_platform.exception.BusinessLogicException;
 import com.group_platform.exception.ExceptionCode;
 import com.group_platform.post.bookmark.PostBookmark;
 import com.group_platform.post.entity.Post;
+import com.group_platform.post.like.PostLike;
 import com.group_platform.qna.answer.entity.QnaAnswer;
 import com.group_platform.qna.question.entity.QnaQuestion;
 import com.group_platform.todo.entity.TodoUser;
@@ -78,11 +79,15 @@ public class User extends BaseEntity {
     private List<PostBookmark> postBookmarks = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    private List<PostLike> postLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
     private List<QnaQuestion> questions = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
     private List<QnaAnswer> answers = new ArrayList<>();
 
+    //todos 테이블에 대한 중간테이블
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
     private List<TodoUser> todoUsers = new ArrayList<>();
 

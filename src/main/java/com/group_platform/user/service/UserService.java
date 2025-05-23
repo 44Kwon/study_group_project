@@ -164,6 +164,7 @@ public class UserService {
     }
 
     //회원키로 회원이 존재하는지
+    @Transactional(readOnly = true)
     public User validateUserWithUserId(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));

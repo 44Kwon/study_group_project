@@ -2,6 +2,7 @@ package com.group_platform.qna.question.entity;
 
 import com.group_platform.audit.BaseEntity;
 import com.group_platform.qna.answer.entity.QnaAnswer;
+import com.group_platform.sutdygroup.entity.StudyGroup;
 import com.group_platform.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -38,6 +39,10 @@ public class QnaQuestion extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_group_id")
+    private StudyGroup studyGroup;
 
     @OneToMany(mappedBy = "qnaQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QnaAnswer> QnaAnswers = new ArrayList<>();

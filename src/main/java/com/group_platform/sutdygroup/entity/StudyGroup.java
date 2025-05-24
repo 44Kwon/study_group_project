@@ -109,4 +109,8 @@ public class StudyGroup extends BaseEntity {
     public void changeGroupStatus(StudyGroup.GroupStatus status) {
         this.status = status;
     }
+
+    public void changeGroupType(CategoryType type) {
+        this.type = type;
+    }
 }

@@ -74,6 +74,8 @@ public class StudyGroupService {
                 .ifPresent(studyGroup::changeDescription);
         Optional.ofNullable(updateRequest.getMaxMember())
                 .ifPresent(studyGroup::changeMaxMembers);
+        Optional.ofNullable(updateRequest.getType())
+                .ifPresent(studyGroup::changeGroupType);
 
         StudyGroupResponseDto studyGroupResponseDto = studyGroupMapper.studyGroupToStudyGroupResponseDto(studyGroup);
         studyGroupResponseDto.setOwner(true);
@@ -93,7 +95,7 @@ public class StudyGroupService {
             throw new BusinessLogicException(ExceptionCode.GROUP_DELETED);
         }
 
-        //그룹장인지 체크할 것(단순히 체크)
+        //그룹장인지 체크할 것(단순히 체크 변경,삭제에 대해서 할 수 있게 버튼을 주기 위해서)
         boolean isOwner = studyMemberService.isLeader(userId, groupId);
         StudyGroupResponseDto studyGroupResponseDto = studyGroupMapper.studyGroupToStudyGroupResponseDto(studyGroup);
         studyGroupResponseDto.setOwner(isOwner);

@@ -35,7 +35,7 @@ public class StudyGroup extends BaseEntity {
     //현재는 필드에서 관리. 향후 -> redis에서 캐싱처리 해볼 것(만약 값이 없다면 count쿼리로 가져와서 넣기)
     @Column(nullable = false)
     @Builder.Default
-    private int currentMembers = 1;
+    private int currentMembers = 0;
 
     @Builder.Default
     private int maxMembers = 6;
@@ -77,8 +77,15 @@ public class StudyGroup extends BaseEntity {
     public StudyMember addStudyMember(User user, StudyMember.InGroupRole role) {
         StudyMember studyMember = StudyMember.createStudyMember(this, user, role);
         studyMembers.add(studyMember);
+        currentMembers++;
 
         return studyMember;
+    }
+
+    //그룹 탈퇴시 현재 인원수 줄이기
+    public void minusStudyGroupNumber() {
+        if(currentMembers <= 0) return;
+        currentMembers--;
     }
 
     public void changeName(String name) {

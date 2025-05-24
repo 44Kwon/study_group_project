@@ -168,6 +168,11 @@ public class StudyGroupService {
             throw new BusinessLogicException(ExceptionCode.GROUP_DISABLED);
         }
 
+        //만약 현재 유저수가 꽉찼으면 가입 막기
+        if(studyGroup.getCurrentMembers() >= studyGroup.getMaxMembers()) {
+            throw new BusinessLogicException(ExceptionCode.GROUP_FULL);
+        }
+
         //유저 검증
         User user = userService.validateUserWithUserId(userId);
 
@@ -194,12 +199,13 @@ public class StudyGroupService {
         StudyMember studyMember = studyMemberService.validateMemberWithUserId(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
 
         // 삭제처리(더티체킹)
+        studyGroup.minusStudyGroupNumber();
         studyMember.changeStatus(StudyMember.ActiveStatus.INACTIVE);
 
         // 그룹장이면 탈퇴 시 넘겨주기
         if (studyMember.getRole() == StudyMember.InGroupRole.LEADER) {
-            StudyMember nextLeader = studyMemberRepository.findFirstByStudyGroupIdAndStatusOrderByJoinDateAsc(
-                            groupId, StudyMember.ActiveStatus.ACTIVE)
+            StudyMember nextLeader = studyMemberRepository.findFirstByStudyGroupIdAndStatusAndIdNotOrderByJoinDateAsc(
+                            groupId, StudyMember.ActiveStatus.ACTIVE, studyMember.getId())
                     .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
 
             //더티체킹으로 처리

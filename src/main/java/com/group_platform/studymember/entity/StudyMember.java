@@ -23,12 +23,11 @@ public class StudyMember {
     private Long id;
 
     @CreationTimestamp
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     //그룹 가입날
     private LocalDateTime joinDate;
 
     @LastModifiedDate
-    @Column(nullable = false)
     private LocalDateTime lastModifiedDate;
 
     //상태(활성,비활성 => 탈퇴),

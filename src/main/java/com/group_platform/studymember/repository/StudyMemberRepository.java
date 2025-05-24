@@ -16,7 +16,7 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
     boolean existsByUserIdAndStudyGroupIdAndRole(Long user_id, Long studyGroup_id, StudyMember.InGroupRole role);
     long countByStudyGroupIdAndStatus(Long studyGroupId, StudyMember.ActiveStatus status);
 
-    Optional<StudyMember> findFirstByStudyGroupIdAndStatusOrderByJoinDateAsc(Long studyGroupId, StudyMember.ActiveStatus status);
+    Optional<StudyMember> findFirstByStudyGroupIdAndStatusAndIdNotOrderByJoinDateAsc(Long studyGroupId, StudyMember.ActiveStatus status, Long id);
 
     @Query("SELECT sm FROM StudyMember sm JOIN FETCH sm.user WHERE sm.studyGroup.id = :studyGroupId AND sm.status = :status ORDER BY sm.joinDate ASC")
     List<StudyMember> findAllByStudyGroupIdAndStatusOrderByJoinDateAsc(Long studyGroupId, StudyMember.ActiveStatus status);

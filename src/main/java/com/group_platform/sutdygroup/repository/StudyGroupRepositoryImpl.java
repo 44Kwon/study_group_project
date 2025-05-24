@@ -28,11 +28,14 @@ public class StudyGroupRepositoryImpl implements CustomStudyGroupRepository {
         QStudyGroup studyGroup = QStudyGroup.studyGroup;
         BooleanBuilder builder = new BooleanBuilder();  //동적 쿼리 생성 때문에 필요 (동적 where절)
 
-
         builder.and(studyGroup.status.eq(StudyGroup.GroupStatus.ACTIVE));
+
         if (keyword != null && !keyword.isEmpty()) {
-            builder.or(studyGroup.name.containsIgnoreCase(keyword))
-                    .or(studyGroup.description.containsIgnoreCase(keyword));
+            BooleanBuilder keyBuilder = new BooleanBuilder();
+            keyBuilder.or(studyGroup.name.containsIgnoreCase(keyword));
+            keyBuilder.or(studyGroup.description.containsIgnoreCase(keyword));
+
+            builder.and(keyBuilder);
         }
         //builder가 비어있으면 전체조회!
         //단일 테이블 조회라서 distict안붙이고 or로 해도 중복데이터 안 생김

@@ -94,6 +94,17 @@ public class StudyGroupController {
         studyGroupService.activateGroup(userDetails.getId(), groupId);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/search")
+    // 그룹명 검색
+    public ResponseEntity<?> searchStudyGroup(@RequestParam("keyword") String keyword,
+                                              @PageableDefault(size = 10) Pageable pageable) {
+        Page<StudyGroupDto.ResponseList> groups = studyGroupService.searchGroup(keyword, pageable);
+        List<StudyGroupDto.ResponseList> content = groups.getContent();
+
+        return new ResponseEntity<>(
+                new ResponseDto.MultipleResponseDto<>(content, groups), HttpStatus.OK);
+    }
     
 
     /**
@@ -134,15 +145,4 @@ public class StudyGroupController {
         studyGroupService.giveLeader(userDetails.getId(), groupId, memberId);
         return ResponseEntity.ok().build();
     }
-
-//    @GetMapping("/search")
-//    // 그룹명 검색 => 향후 QueryDsl로 처리해보기
-//    public ResponseEntity<?> searchStudyGroupByName(@RequestParam("name") String name,
-//                                                    @PageableDefault(size = 10) Pageable pageable) {
-//        Page<StudyGroupResponseDto> groups = studyGroupService.searchGroupByName(name, pageable);
-//        List<StudyGroupResponseDto> content = groups.getContent();
-//
-//        return new ResponseEntity<>(
-//                new ResponseDto.MultipleResponseDto<>(content, groups), HttpStatus.OK);
-//    }
 }

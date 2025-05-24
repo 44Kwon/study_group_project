@@ -41,7 +41,9 @@ public class StudyGroupDto {
 
     @Getter
     @NoArgsConstructor
+    @AllArgsConstructor
     @Setter
+//    @QueryProjection  q파일 생성
     //리스트용 response dto
     public static class ResponseList {
         private Long id;

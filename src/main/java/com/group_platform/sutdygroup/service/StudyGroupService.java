@@ -102,6 +102,7 @@ public class StudyGroupService {
 
 
     @Transactional(readOnly = true)
+    //활성화인 그룹 전부 가져오기
     public Page<StudyGroupDto.ResponseList> getActiveAllGroups(CategoryType categoryType, String sort, Pageable pageable) {
         Page<StudyGroup> result;
 
@@ -122,6 +123,12 @@ public class StudyGroupService {
 
         //페이징 상태에서 dto로 바꾸기
         return result.map(studyGroupMapper::studyGroupToStudyGroupResponseListDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<StudyGroupDto.ResponseList> searchGroup(String keyword, Pageable pageable) {
+        //querydsl을 통해 dto로 조회처리
+        return studyGroupRepository.searchStudyGroups(keyword, pageable);
     }
 
 

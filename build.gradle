@@ -51,6 +51,10 @@ dependencies {
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+
+
+    //테스트전용 h2
+    testRuntimeOnly 'com.h2database:h2'
 }
 
 tasks.named('test') {

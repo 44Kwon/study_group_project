@@ -6,6 +6,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,12 +19,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 import java.io.IOException;
+import java.util.Set;
 
 // 로그인 api 처리를 Security가 인증 필터 수준에서 처리 하게 하는 방식
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
+    private final Validator validator;
+
+    public CustomAuthenticationFilter(AuthenticationManager authenticationManager, Validator validator) {
         super.setAuthenticationManager(authenticationManager);
+        this.validator = validator;
         // 로그인 URL 변경 가능 (기본은 /login)
 //        setFilterProcessesUrl("/api/login"); securityconfig에서 적게 해뒀음
     }
@@ -39,11 +45,20 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
             //request.getInputStream()는 요청 본문을 읽어옴
             //objectMapper.readValue(...)은 JSON을 Java 객체로 바꿈
             LoginDto loginRequest = objectMapper.readValue(request.getInputStream(), LoginDto.class);
+            //Dto 유효성검증
+            Set<ConstraintViolation<LoginDto>> violations = validator.validate(loginRequest);
+            if (!violations.isEmpty()) {
+                String message = violations.stream()
+                        .map(ConstraintViolation::getMessage)
+                        .findFirst()
+                        .orElse("Login Request is Invalid");    //이걸 탈 틸은 없으니 혹시나 모르니까
+                throw new AuthenticationServiceException(message);
+            }
 
             UsernamePasswordAuthenticationToken authRequest =
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
 
-            //나중에 더 찾아보기
+            //클라이언트 ip, session id등에 대한 정보를 authRequest 객체의 details 필드에 담는다 (중요!!!)
             setDetails(request, authRequest);
 
             return this.getAuthenticationManager().authenticate(authRequest);

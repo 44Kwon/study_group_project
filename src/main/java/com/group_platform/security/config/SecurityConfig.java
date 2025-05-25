@@ -7,6 +7,7 @@ import com.group_platform.security.handler.CustomAccessDeniedHandler;
 import com.group_platform.security.handler.CustomAuthenticationFailureHandler;
 import com.group_platform.security.handler.CustomAuthenticationSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Validator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,13 +35,15 @@ public class SecurityConfig {
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final SessionValidationFilter sessionValidationFilter;
+    private final Validator validator;
 
-    public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler, CustomAuthenticationFailureHandler customAuthenticationFailureHandler, CustomAccessDeniedHandler customAccessDeniedHandler, SessionValidationFilter sessionValidationFilter) {
+    public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler, CustomAuthenticationFailureHandler customAuthenticationFailureHandler, CustomAccessDeniedHandler customAccessDeniedHandler, SessionValidationFilter sessionValidationFilter, Validator validator) {
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
         this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
         this.customAccessDeniedHandler = customAccessDeniedHandler;
         this.sessionValidationFilter = sessionValidationFilter;
+        this.validator = validator;
     }
 
     @Bean
@@ -55,7 +58,7 @@ public class SecurityConfig {
         AuthenticationManager authenticationManager = authenticationManager(http.getSharedObject(AuthenticationConfiguration.class));
 
         // CustomAuthenticationFilter 생성 및 핸들러 연결
-        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManager);
+        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManager, validator);
         customAuthenticationFilter.setFilterProcessesUrl("/api/login"); // 로그인 요청 URL 변경 (필요시)
         customAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
         customAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);

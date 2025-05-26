@@ -30,8 +30,12 @@ public enum ExceptionCode {
     GROUP_DISABLED(403, "비활성화된 그룹입니다"),
     GROUP_DELETED(410, "그룹이 삭제된 상태입니다"),
     GROUP_FULL(409, "현재 그룹인원이 꽉 찬 상태입니다"),
-    ALREADY_A_MEMBER(409, "이미 그룹원입니다");
+    ALREADY_A_MEMBER(409, "이미 그룹원입니다"),
 
+    //투두 관련
+    DUE_DATE_PAST(400, "마감일은 오늘 이전이면 안됩니다"),
+    TODO_NOT_EXIST(404, "Todo가 존재하지 않습니다"),
+    TODO_NOT_ASSIGNED(400, "할당 인원이 설정되지 않았습니다");
 
 
 

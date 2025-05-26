@@ -70,4 +70,12 @@ public class UserDto {
         //나중에
 //        private String profileImageUrl;
     }
+
+//    @Getter
+//    @AllArgsConstructor
+//    @Builder
+//    public static class TodoNickname {
+//        private Long id;
+//        private String nickname;
+//    }
 }

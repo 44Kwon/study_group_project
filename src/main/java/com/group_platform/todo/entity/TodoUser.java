@@ -1,12 +1,15 @@
 package com.group_platform.todo.entity;
 
 
+import com.group_platform.user.dto.UserDto;
 import com.group_platform.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "todo_users")
@@ -18,8 +21,6 @@ public class TodoUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private boolean isCompleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id")

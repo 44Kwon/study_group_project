@@ -57,18 +57,23 @@ public class StudyGroup extends BaseEntity {
 
     //studymembers는 casacde처리하지말지 결정할 것(내가 있었던 그룹 목록)
     @OneToMany(mappedBy = "studyGroup", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    @Builder.Default
     private List<StudyMember> studyMembers = new ArrayList<>();
 
     @OneToMany(mappedBy = "studyGroup",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    @Builder.Default
     private List<Todo> todos = new ArrayList<>();
 
     @OneToMany(mappedBy = "studyGroup",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "studyGroup",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    @Builder.Default
     private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "studyGroup",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    @Builder.Default
     private List<QnaQuestion> questions = new ArrayList<>();
 
 

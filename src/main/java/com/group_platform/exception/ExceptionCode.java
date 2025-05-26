@@ -29,7 +29,8 @@ public enum ExceptionCode {
     GROUP_DELETE_DINED_BY_EXISTING_MEMBERS(409, "다른 멤버가 있어서 그룹을 삭제할 수 없습니다"),
     GROUP_DISABLED(403, "비활성화된 그룹입니다"),
     GROUP_DELETED(410, "그룹이 삭제된 상태입니다"),
-    GROUP_FULL(409, "현재 그룹인원이 꽉 찬 상태입니다");
+    GROUP_FULL(409, "현재 그룹인원이 꽉 찬 상태입니다"),
+    ALREADY_A_MEMBER(409, "이미 그룹원입니다");
 
 
 

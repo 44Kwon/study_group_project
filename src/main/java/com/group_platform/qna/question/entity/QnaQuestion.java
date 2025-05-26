@@ -45,5 +45,6 @@ public class QnaQuestion extends BaseEntity {
     private StudyGroup studyGroup;
 
     @OneToMany(mappedBy = "qnaQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<QnaAnswer> QnaAnswers = new ArrayList<>();
 }

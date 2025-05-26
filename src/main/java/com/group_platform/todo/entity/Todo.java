@@ -49,5 +49,6 @@ public class Todo extends BaseEntity {
     private StudyGroup studyGroup;
 
     @OneToMany(mappedBy = "todo",cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
+    @Builder.Default
     private List<TodoUser> todoUsers = new ArrayList<>();
 }

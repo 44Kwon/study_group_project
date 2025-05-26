@@ -64,7 +64,7 @@ public class StudyGroupService {
 
         // 최대 인원 변경 시 현재 인원보다 적으면 에러처리
         // 필드에서 현재 인원수를 가져오는 중(수정해야 함 나중에)
-        if(updateRequest.getMaxMember() != null && updateRequest.getMaxMember() < studyGroup.getCurrentMembers()) {
+        if(updateRequest.getMaxMembers() != null && updateRequest.getMaxMembers() < studyGroup.getCurrentMembers()) {
             throw new BusinessLogicException(ExceptionCode.INVALID_MAX_CAPACITY);
         }
 
@@ -72,7 +72,7 @@ public class StudyGroupService {
                 .ifPresent(studyGroup::changeName);
         Optional.ofNullable(updateStudyGroup.getDescription())
                 .ifPresent(studyGroup::changeDescription);
-        Optional.ofNullable(updateRequest.getMaxMember())
+        Optional.ofNullable(updateRequest.getMaxMembers())
                 .ifPresent(studyGroup::changeMaxMembers);
         Optional.ofNullable(updateRequest.getType())
                 .ifPresent(studyGroup::changeGroupType);
@@ -166,13 +166,18 @@ public class StudyGroupService {
         StudyGroup studyGroup = validateByGroupId(groupId);
 
         //비활성화 그룹은 막기
-        if(studyGroup.getStatus() != StudyGroup.GroupStatus.ACTIVE) {
+        if (studyGroup.getStatus() != StudyGroup.GroupStatus.ACTIVE) {
             throw new BusinessLogicException(ExceptionCode.GROUP_DISABLED);
         }
 
         //만약 현재 유저수가 꽉찼으면 가입 막기
-        if(studyGroup.getCurrentMembers() >= studyGroup.getMaxMembers()) {
+        if (studyGroup.getCurrentMembers() >= studyGroup.getMaxMembers()) {
             throw new BusinessLogicException(ExceptionCode.GROUP_FULL);
+        }
+
+        //가입 되어있는 사람인지 체크
+        if (studyMemberRepository.existsByUserIdAndStudyGroupIdAndStatus(userId, groupId, StudyMember.ActiveStatus.ACTIVE)) {
+            throw new BusinessLogicException(ExceptionCode.ALREADY_A_MEMBER);
         }
 
         //유저 검증
@@ -181,7 +186,7 @@ public class StudyGroupService {
         //그룹원 생성
         //연관관계설정(만약 user쪽에 양방향 걸거면 수정해줘야함, 위에 그룹 만드는것도 마찬가지)
         StudyMember studyMember = studyGroup.addStudyMember(user, StudyMember.InGroupRole.MEMBER);
-        
+
         studyMemberRepository.save(studyMember);
     }
 

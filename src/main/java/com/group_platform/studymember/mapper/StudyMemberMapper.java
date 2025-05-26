@@ -9,6 +9,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface StudyMemberMapper {
-    @Mapping(source = "user.nickname", target = "nickname")
     List<StudyMemberDto.Response> StudyMembersToResponse(List<StudyMember> studyMembers);
+    //List 변환을 사용하기 위해서는 단일 맵핑 메서드 필수(특히나 이렇게 연관관계가 엮여있는 경우)!!!
+    @Mapping(source = "user.nickname", target = "nickname")
+    StudyMemberDto.Response StudyMemberToResponse(StudyMember studyMember);
 }

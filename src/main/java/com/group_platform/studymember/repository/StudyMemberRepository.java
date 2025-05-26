@@ -13,7 +13,8 @@ import java.util.Optional;
 public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
     Optional<StudyMember> findByUserIdAndStudyGroupId(Long userId, Long studyGroupId);
     Optional<StudyMember> findByUserIdAndStudyGroupIdAndStatus(Long userId, Long studyGroupId, StudyMember.ActiveStatus status);
-    boolean existsByUserIdAndStudyGroupIdAndRole(Long user_id, Long studyGroup_id, StudyMember.InGroupRole role);
+
+    boolean existsByUserIdAndStudyGroupIdAndRoleAndStatus(Long userId, Long studyGroupId, StudyMember.InGroupRole role, StudyMember.ActiveStatus status);
     boolean existsByUserIdAndStudyGroupIdAndStatus(Long user_id, Long studyGroup_id, StudyMember.ActiveStatus status);
     long countByStudyGroupIdAndStatus(Long studyGroupId, StudyMember.ActiveStatus status);
 

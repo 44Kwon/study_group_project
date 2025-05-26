@@ -58,7 +58,7 @@ public class StudyGroupService {
         //그룹이 존재하는지 여부
         StudyGroup studyGroup = validateByGroupId(updateStudyGroup.getId());
 
-        //그룹장만 업데이트 가능하다(그룹원인지, 그룹장인지 까지 체크)
+        //그룹장만 업데이트 가능하다(그룹원인지, 그룹장인지 까지 체크, 내부에서 리더유저가 탈퇴했는지 여부도 체크중)
         studyMemberService.validateLeaderWithUserIdAndStudyGroupId(userId, studyGroup.getId());
 
 

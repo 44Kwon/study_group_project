@@ -98,7 +98,7 @@ class StudyMemberRepositoryTest {
     @DisplayName("스터디 멤버 존재하는지")
     void testExistsByUserIdAndStudyGroupIdAndRole() {
         //when
-        boolean exists = studyMemberRepository.existsByUserIdAndStudyGroupIdAndRole(2L, 1L, StudyMember.InGroupRole.MEMBER);
+        boolean exists = studyMemberRepository.existsByUserIdAndStudyGroupIdAndRoleAndStatus(2L, 1L, StudyMember.InGroupRole.MEMBER, StudyMember.ActiveStatus.ACTIVE);
         //then
         assertThat(exists).isTrue();
     }

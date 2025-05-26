@@ -38,7 +38,7 @@ public class StudyMemberService {
 
     //단순히 리더인지 체크(true,false)
     public boolean isLeader(Long userId, Long studyGroupId) {
-        return studyMemberRepository.existsByUserIdAndStudyGroupIdAndRole(userId, studyGroupId, StudyMember.InGroupRole.LEADER);
+        return studyMemberRepository.existsByUserIdAndStudyGroupIdAndRoleAndStatus(userId, studyGroupId, StudyMember.InGroupRole.LEADER, StudyMember.ActiveStatus.ACTIVE);
     }
 
     //현재 그룹에서 활동중인 사람들의 숫자

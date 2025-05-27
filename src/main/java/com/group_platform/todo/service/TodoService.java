@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 현재는 동시성 문제에 대해 Optimisic Lock으로 해결하고
@@ -45,7 +46,7 @@ public class TodoService {
         studyMemberService.validateMemberWithUserId(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
 
         //due_date는 오늘날짜이전이면 에러처리
-        if(requestTodo.getDue_date() != null &&  LocalDate.now().isBefore(requestTodo.getDue_date())) {
+        if(requestTodo.getDue_date() != null &&  requestTodo.getDue_date().isBefore(LocalDate.now())) {
             throw new BusinessLogicException(ExceptionCode.DUE_DATE_PAST);
         }
 
@@ -62,7 +63,7 @@ public class TodoService {
         }
 
         Todo savedTodo = todoRepository.save(requestTodo);
-        TodoDto.Response response = todoMapper.TodoToResponse(savedTodo);
+        TodoDto.Response response = todoMapper.todoToResponse(savedTodo);
         //assignedMemberNicknames에 대한처리
         response.setAssignedMemberNicknames(names);
         return response;
@@ -77,7 +78,7 @@ public class TodoService {
         Todo updateTodo = todoMapper.updateRequestToTodo(updateRequest);
 
         //due_date는 오늘날짜이전이면 에러처리
-        if(updateTodo.getDue_date() != null &&  LocalDate.now().isBefore(updateTodo.getDue_date())) {
+        if(updateTodo.getDue_date() != null &&  updateTodo.getDue_date().isBefore(LocalDate.now())) {
             throw new BusinessLogicException(ExceptionCode.DUE_DATE_PAST);
         }
 
@@ -106,24 +107,141 @@ public class TodoService {
                         todo.setAllMembers(true);
                     } else {
                         //전부 삭제하고, 다시 넣는 로직
-                        deleteAllAndNewInsert(updateRequest, todo, names);
+                        deleteAllAndNewInsert(updateRequest.getMemberIds(), todo, names);
                     }
                 }, ()-> {
-                    if (!todo.isAllMembers()) {
+                    if (!todo.isAllMembers() && !updateRequest.getMemberIds().isEmpty()) {
                         //전부 삭제하고, 다시 넣는 로직
-                        deleteAllAndNewInsert(updateRequest, todo, names);
+                        deleteAllAndNewInsert(updateRequest.getMemberIds(), todo, names);
                     }
                 });
 
-        TodoDto.Response response = todoMapper.TodoToResponse(todo);
+        TodoDto.Response response = todoMapper.todoToResponse(todo);
         response.setAssignedMemberNicknames(names);
+
         return response;
     }
 
-    private void deleteAllAndNewInsert(TodoDto.updateRequest updateRequest, Todo todo, List<String> names) {
+    @Transactional(readOnly = true)
+    public TodoDto.Response getTodo(Long groupId, Long todoId) {
+        // todoId와 groupId로 있는지 검증
+        Todo todo = validateTodo(groupId, todoId);
+        return getResponse(todoId, todo);
+    }
+
+    @Transactional(readOnly = true)
+    //필요시 Map으로 반환하고 현재는 List로 반환 -> 클라이언트쪽에서 그룹핑하도록
+    public List<TodoDto.Response> getAllTodo(Long userId, Long groupId) {
+        //그룹인원인지에 대한 검증
+        studyMemberService.validateMemberWithUserId(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
+
+        List<Todo> todos = todoRepository.findAllByStudyGroupId(groupId);
+        List<Long> allMembersFalseTodoIds = todos.stream()
+                .filter((todo) -> !todo.isAllMembers())
+                .map(Todo::getId)
+                .toList();
+
+        //allMembersFalseTodoIds가 값이 없을수도 있으니
+        List<TodoDto.TodoUserNicknameDto> nicknamesByTodoIds = Collections.emptyList();
+        //DB최대한 덜 타게 한다
+        if(!allMembersFalseTodoIds.isEmpty()) {
+            nicknamesByTodoIds = todoUserRepository.findNicknamesByTodoIds(allMembersFalseTodoIds);
+        }
+
+        Map<Long, List<String>> todoIdToNicknames = nicknamesByTodoIds.stream()
+                .collect(Collectors.groupingBy(
+                        TodoDto.TodoUserNicknameDto::getTodoId,
+                        Collectors.mapping(TodoDto.TodoUserNicknameDto::getNickname, Collectors.toList())
+                ));
+
+        List<TodoDto.Response> responses = todoMapper.todosToResponse(todos);
+
+        if (!todoIdToNicknames.isEmpty()) {
+            responses.forEach((response) -> {
+                response.setAssignedMemberNicknames(todoIdToNicknames.get(response.getId()));
+            });
+        }
+
+        return responses;
+    }
+
+    public void deleteTodo(Long userId, Long groupId, Long todoId) {
+        //그룹원인지
+        studyMemberService.validateMemberWithUserId(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
+        todoRepository.deleteById(todoId);
+    }
+
+    //동시성문제 (낙관적 락 적용해보자)
+    public TodoDto.Response changeStatus(Long userId, Long groupId, Long todoId, Todo.TodoStatus status) {
+        //그룹인원인지에 대한 검증
+        studyMemberService.validateMemberWithUserId(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
+
+        // todoId와 groupId로 있는지 검증
+        Todo todo = validateTodo(groupId, todoId);
+        todo.changeStatus(status);
+
+        return getResponse(todoId, todo);
+    }
+
+    public TodoDto.Response changeAssign(Long userId, Long groupId, Long todoId, TodoDto.changeAssigneeRequest changeAssigneeRequest) {
+        //그룹인원인지에 대한 검증
+        studyMemberService.validateMemberWithUserId(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
+
+        // todoId와 groupId로 있는지 검증
+        Todo todo = validateTodo(groupId, todoId);
+
+
+        //allmembers이 false가 넘어온 상황에서 List가 안넘어왔을 때
+        if(changeAssigneeRequest.getAllMembers() != null && !changeAssigneeRequest.getAllMembers() && changeAssigneeRequest.getMemberIds() == null) {
+            throw new BusinessLogicException(ExceptionCode.TODO_NOT_ASSIGNED);
+        }
+
+        List<String> names = new ArrayList<>();
+
+        Optional.ofNullable(changeAssigneeRequest.getAllMembers())
+                .ifPresentOrElse((isAllMembers) -> {
+                    if(isAllMembers) {
+                        //속한 todo_user전부 삭제
+                        todoUserRepository.deleteAllInBatchByTodoId(todo.getId());
+                        todo.setAllMembers(true);
+                    } else {
+                        //전부 삭제하고, 다시 넣는 로직
+                        deleteAllAndNewInsert(changeAssigneeRequest.getMemberIds(), todo, names);
+                    }
+                }, ()-> {
+                    if (!todo.isAllMembers() && !changeAssigneeRequest.getMemberIds().isEmpty()) {
+                        //전부 삭제하고, 다시 넣는 로직
+                        deleteAllAndNewInsert(changeAssigneeRequest.getMemberIds(), todo, names);
+                    }
+                });
+
+        TodoDto.Response response = todoMapper.todoToResponse(todo);
+        response.setAssignedMemberNicknames(names);
+
+//        //매퍼에서 처리로 인한 삭제
+//        if(todo.getDue_date().isBefore(LocalDate.now())) {
+//            response.setOverdue(true);
+//        }
+
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    public List<TodoDto.ResponseAssignedMy> assignedMy(Long userId, Long groupId) {
+        //그룹에서 모든 할일 데이터를 가져오기
+        //할일 데이터에서 allmembers가 true인것과, todo_user쪽에서 내 userId와 해당 todoId와 맞는 값을 가져온다
+        List<Todo> myAssignedTodo = todoRepository.findMyAssignedTodo(groupId, userId);
+        return todoMapper.todosToResponsesAssignedMy(myAssignedTodo);
+    }
+
+    private Todo validateTodo(Long groupId, Long todoId) {
+        return todoRepository.findByIdAndStudyGroupId(todoId, groupId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.TODO_NOT_EXIST));
+    }
+
+    private void deleteAllAndNewInsert(List<Long> ids, Todo todo, List<String> names) {
         //전부 삭제하고, 다시 넣는 로직 들어가야함
         todoUserRepository.deleteAllInBatchByTodoId(todo.getId());
-        List<User> assignedMembers = userRepository.findAllById(updateRequest.getMemberIds());
+        List<User> assignedMembers = userRepository.findAllById(ids);
         if (!assignedMembers.isEmpty()) {
             todo.setAllMembers(false);
 
@@ -135,11 +253,9 @@ public class TodoService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public TodoDto.Response getTodo(Long groupId, Long todoId) {
-        // todoId와 groupId로 있는지 검증
-        Todo todo = validateTodo(groupId, todoId);
-        TodoDto.Response response = todoMapper.TodoToResponse(todo);
+    //단일 객체 내보낼 때 response dto로 변환하고 할당 인원들 넣어서 보내줌
+    private TodoDto.Response getResponse(Long todoId, Todo todo) {
+        TodoDto.Response response = todoMapper.todoToResponse(todo);
 
         if (!todo.isAllMembers()) {
             //todo_user전부를 가져오고 여기서 nickname가져올것
@@ -151,40 +267,6 @@ public class TodoService {
             );
         }
 
-        if(LocalDate.now().isBefore(todo.getDue_date())) {
-            response.setOverdue(true);
-        }
-
         return response;
-    }
-
-    @Transactional(readOnly = true)
-    public List<TodoDto.Response> getAllTodo(Long id, Long groupId) {
-        //어떻게 줘야할까?
-
-        return null;
-    }
-
-    public void deleteTodo(Long userId, Long groupId, Long todoId) {
-        //그룹원인지
-        studyMemberService.validateMemberWithUserId(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
-        todoRepository.deleteById(todoId);
-    }
-
-    public TodoDto.Response changeStatus(Long id, Long groupId, Long todoId, Todo.TodoStatus status) {
-        return null;
-    }
-
-    public TodoDto.Response changeAssign(Long id, Long groupId, Long todoId, TodoDto.changeAssigneeRequest changeAssigneeRequest) {
-        return null;
-    }
-
-    @Transactional(readOnly = true)
-    public List<TodoDto.Response> assignedMy(Long id, Long groupId) {
-        return null;
-    }
-
-    private Todo validateTodo(Long groupId, Long todoId) {
-        return todoRepository.findByIdAndStudyGroupId(todoId, groupId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.TODO_NOT_EXIST));
     }
 }

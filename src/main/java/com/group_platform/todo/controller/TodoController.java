@@ -86,7 +86,7 @@ public class TodoController {
     //내가 할당된 목록 (완료된 것은 제외)
     public ResponseEntity<?> assignedMy(@AuthenticationPrincipal CustomUserDetails userDetails,
                                           @PathVariable("study-group-id") Long groupId) {
-        List<TodoDto.Response> todos = todoService.assignedMy(userDetails.getId(), groupId);
+        List<TodoDto.ResponseAssignedMy> todos = todoService.assignedMy(userDetails.getId(), groupId);
         return new ResponseEntity<>(new ResponseDto.SingleResponseDto<>(todos), HttpStatus.OK);
     }
 }

@@ -39,6 +39,9 @@ public class Todo extends BaseEntity {
     @Builder.Default
     private TodoStatus status = TodoStatus.PLANNED;
 
+    @Version
+    private Long version;
+
     public enum TodoStatus {
         PLANNED,     // 예정
         IN_PROGRESS, // 진행중
@@ -89,5 +92,9 @@ public class Todo extends BaseEntity {
 
     public void changeDueDate(LocalDate dueDate) {
         this.due_date = dueDate;
+    }
+
+    public void changeStatus(TodoStatus todoStatus) {
+        this.status = todoStatus;
     }
 }

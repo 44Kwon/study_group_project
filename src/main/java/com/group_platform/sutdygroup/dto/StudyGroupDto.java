@@ -54,7 +54,7 @@ public class StudyGroupDto {
         private Long id;
         private String name;
         private String description;
-        private int currentMember;
+        private int currentMembers;
         private int maxMembers;
         private CategoryType type;
     }

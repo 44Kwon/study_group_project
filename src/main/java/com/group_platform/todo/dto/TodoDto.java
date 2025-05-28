@@ -20,7 +20,7 @@ public class TodoDto {
         private String title;
         private String description;
         private LocalDate due_date;
-        private boolean allMembers;
+        private Boolean allMembers;
         private List<Long> memberIds;
     }
 

@@ -10,9 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface TodoRepository extends JpaRepository<Todo,Long> {
-    Optional<Todo> findByIdAndStudyGroupId(Long id, Long studyGroupId);
+    Optional<Todo> findByIdAndStudyGroup_Id(Long id, Long studyGroupId);
 
-    List<Todo> findAllByStudyGroupId(Long groupId);
+    List<Todo> findAllByStudyGroup_Id(Long groupId);
 
     //내가 할당된 할일과 전체에게 할당된 할일 가져오기
     //allmembers가 true인 것은 연관테이블 값이 없이니 left join!

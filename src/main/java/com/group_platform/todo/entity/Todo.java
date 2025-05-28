@@ -59,17 +59,16 @@ public class Todo extends BaseEntity {
 
     //연관관계 메서드 (할당인원이 있을때 쓰는 것)
     public List<TodoUser> addAssignMembers(List<User> userList, List<String> names) {
-        List<TodoUser> newTodoUsers = new ArrayList<>();
+        //새롭게 list만들어서 컬렉션 전체를 null 처리하거나, 새 컬렉션으로 교체하면 오류가 남
         for (User user : userList) {
             TodoUser todoUser = TodoUser.builder()
                     .user(user)
                     .todo(this)
                     .build();
-            newTodoUsers.add(todoUser);
+            this.todoUsers.add(todoUser);
             names.add(user.getNickname());
         }
-        this.todoUsers = newTodoUsers;
-        return newTodoUsers;
+        return this.todoUsers;
 
         //만약 대용량 처리 저장시에는 JPA연관관계를 통한게 아닌 다이렉트로 저장하는게 좋다
 //        List<TodoUser> todoUsers = userList.stream()
@@ -80,6 +79,11 @@ public class Todo extends BaseEntity {
 //                .toList();
 //
 //        todoUserRepository.saveAll(todoUsers); (서비스에서처리)
+    }
+
+    //연관관계용 메서드
+    public void addTodoWithStudyGroup(StudyGroup studyGroup) {
+        this.studyGroup = studyGroup;
     }
 
     public void changeTitle(String title) {

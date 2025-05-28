@@ -4,6 +4,8 @@ import com.group_platform.exception.BusinessLogicException;
 import com.group_platform.exception.ExceptionCode;
 import com.group_platform.studymember.entity.StudyMember;
 import com.group_platform.studymember.service.StudyMemberService;
+import com.group_platform.sutdygroup.entity.StudyGroup;
+import com.group_platform.sutdygroup.service.StudyGroupService;
 import com.group_platform.todo.dto.TodoDto;
 import com.group_platform.todo.entity.Todo;
 import com.group_platform.todo.entity.TodoUser;
@@ -34,6 +36,7 @@ public class TodoService {
     private final StudyMemberService studyMemberService;
     private final UserRepository userRepository;
     private final TodoUserRepository todoUserRepository;
+    private final StudyGroupService studyGroupService;
 
     public TodoDto.Response createTodo(Long userId, Long groupId, TodoDto.createRequest createRequest) {
         Todo requestTodo = todoMapper.createRequestToTodo(createRequest);
@@ -42,12 +45,21 @@ public class TodoService {
         //getReferenceById()는 연관관계용으로 id값만 가진 프록시객체를 생성한다
 //        User referenceById = userRepository.getReferenceById(userId);
 
+        //그룹검증(연관관계잇기 위해)
+        StudyGroup studyGroup = studyGroupService.validateByGroupId(groupId);
+
         //그룹인원인지에 대한 검증
         studyMemberService.validateMemberWithUserId(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
 
         //due_date는 오늘날짜이전이면 에러처리
         if(requestTodo.getDue_date() != null &&  requestTodo.getDue_date().isBefore(LocalDate.now())) {
             throw new BusinessLogicException(ExceptionCode.DUE_DATE_PAST);
+        }
+
+        //allmembers가 false인데, list값이 없을 때
+        //에러처리 말고 그냥 all처리로 하자
+        if(!requestTodo.isAllMembers() && createRequest.getMemberIds() == null) {
+            requestTodo.setAllMembers(true);
         }
 
         List<String> names = new ArrayList<>();
@@ -61,6 +73,9 @@ public class TodoService {
                 requestTodo.addAssignMembers(assignedMembers, names);
             }
         }
+
+        //그냥 단방향으로 처리함
+        requestTodo.addTodoWithStudyGroup(studyGroup);
 
         Todo savedTodo = todoRepository.save(requestTodo);
         TodoDto.Response response = todoMapper.todoToResponse(savedTodo);
@@ -135,7 +150,7 @@ public class TodoService {
         //그룹인원인지에 대한 검증
         studyMemberService.validateMemberWithUserId(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
 
-        List<Todo> todos = todoRepository.findAllByStudyGroupId(groupId);
+        List<Todo> todos = todoRepository.findAllByStudyGroup_Id(groupId);
         List<Long> allMembersFalseTodoIds = todos.stream()
                 .filter((todo) -> !todo.isAllMembers())
                 .map(Todo::getId)
@@ -196,6 +211,8 @@ public class TodoService {
             throw new BusinessLogicException(ExceptionCode.TODO_NOT_ASSIGNED);
         }
 
+        //기존 true일 때 memberIds가 넘어와도 처리되게 해야한다
+
         List<String> names = new ArrayList<>();
 
         Optional.ofNullable(changeAssigneeRequest.getAllMembers())
@@ -209,7 +226,9 @@ public class TodoService {
                         deleteAllAndNewInsert(changeAssigneeRequest.getMemberIds(), todo, names);
                     }
                 }, ()-> {
-                    if (!todo.isAllMembers() && !changeAssigneeRequest.getMemberIds().isEmpty()) {
+                    //위에 투두에 대해서 변경하는것과 다르게 처리한다
+                    //여기서는 기존값이 true던 false건 list값이 넘어오면 변경처리한다
+                    if (!changeAssigneeRequest.getMemberIds().isEmpty()) {
                         //전부 삭제하고, 다시 넣는 로직
                         deleteAllAndNewInsert(changeAssigneeRequest.getMemberIds(), todo, names);
                     }
@@ -230,27 +249,31 @@ public class TodoService {
     public List<TodoDto.ResponseAssignedMy> assignedMy(Long userId, Long groupId) {
         //그룹에서 모든 할일 데이터를 가져오기
         //할일 데이터에서 allmembers가 true인것과, todo_user쪽에서 내 userId와 해당 todoId와 맞는 값을 가져온다
-        List<Todo> myAssignedTodo = todoRepository.findMyAssignedTodo(groupId, userId);
-        return todoMapper.todosToResponsesAssignedMy(myAssignedTodo);
+        List<Todo> myAssignedTodos = todoRepository.findMyAssignedTodo(groupId, userId);
+        //COMPLETED가 된 값은 필터링
+        List<Todo> AssignedTodosWithOutCompleted = myAssignedTodos.stream()
+                .filter((myAssignedTodo) -> myAssignedTodo.getStatus() != Todo.TodoStatus.COMPLETED)
+                .toList();
+        return todoMapper.todosToResponsesAssignedMy(AssignedTodosWithOutCompleted);
     }
 
     private Todo validateTodo(Long groupId, Long todoId) {
-        return todoRepository.findByIdAndStudyGroupId(todoId, groupId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.TODO_NOT_EXIST));
+        return todoRepository.findByIdAndStudyGroup_Id(todoId, groupId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.TODO_NOT_EXIST));
     }
 
     private void deleteAllAndNewInsert(List<Long> ids, Todo todo, List<String> names) {
         //전부 삭제하고, 다시 넣는 로직 들어가야함
-        todoUserRepository.deleteAllInBatchByTodoId(todo.getId());
-        List<User> assignedMembers = userRepository.findAllById(ids);
-        if (!assignedMembers.isEmpty()) {
-            todo.setAllMembers(false);
+            todoUserRepository.deleteAllInBatchByTodoId(todo.getId());
+            List<User> assignedMembers = userRepository.findAllById(ids);
+            if (!assignedMembers.isEmpty()) {
+                todo.setAllMembers(false);
 
-            List<TodoUser> todoUsers = todo.addAssignMembers(assignedMembers, names);
-            //변경감지로 연관관계 casacade로 저장이 안먹힘. 그래서 쓰던 연관관계 메서드에 반환값 바꿈
-            todoUserRepository.saveAll(todoUsers);
-        } else {
-            todo.setAllMembers(true);
-        }
+                List<TodoUser> todoUsers = todo.addAssignMembers(assignedMembers, names);
+                //변경감지로 연관관계 casacade로 저장이 안먹힘. 그래서 쓰던 연관관계 메서드에 반환값 바꿈
+                todoUserRepository.saveAll(todoUsers);
+            } else {
+                todo.setAllMembers(true);
+            }
     }
 
     //단일 객체 내보낼 때 response dto로 변환하고 할당 인원들 넣어서 보내줌

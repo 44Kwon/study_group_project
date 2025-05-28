@@ -11,7 +11,7 @@ public enum PostType {
     INFO("정보 공유"),
     FIXED("상단 고정");
 
-    private String description;
+    private final String description;
 
     PostType(String description) {
         this.description = description;

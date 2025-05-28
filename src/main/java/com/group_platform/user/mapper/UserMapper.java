@@ -11,6 +11,10 @@ public interface UserMapper {
 
     User CreateRequestToUser(UserDto.CreateRequest createRequest);
     User UpdateRequestToUser(UserDto.UpdateRequest updateRequest);
-    UserDto.updateResponse UserToUpdateResponse(User user);
+    UserDto.UpdateResponse UserToUpdateResponse(User user);
     UserResponseDto UserToUserResponseDto(User user);
+
+
+    //게시글,댓글 등에서 쓰는 사용자 정보
+    UserDto.UserProfileDto userToUserProfileDto(User user);
 }

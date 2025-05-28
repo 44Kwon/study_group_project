@@ -51,7 +51,7 @@ public class UserService {
 
 
     //회원변경(보통 회원 정보 다 던져줘야 하나)
-    public UserDto.updateResponse updateUser(Long userId, UserDto.UpdateRequest updateRequest) {
+    public UserDto.UpdateResponse updateUser(Long userId, UserDto.UpdateRequest updateRequest) {
         User updateUser = userMapper.UpdateRequestToUser(updateRequest);
         //유저가 존재하는지 검증
         User user = validateUserWithUserId(userId);

@@ -55,7 +55,7 @@ public class UserDto {
     @Getter
     @AllArgsConstructor
     @Builder
-    public static class updateResponse {
+    public static class UpdateResponse {
         private Long id;
         private String username;
         private String email;
@@ -71,11 +71,12 @@ public class UserDto {
 //        private String profileImageUrl;
     }
 
-//    @Getter
-//    @AllArgsConstructor
-//    @Builder
-//    public static class TodoNickname {
-//        private Long id;
-//        private String nickname;
-//    }
+    @Getter
+    @AllArgsConstructor
+    @Setter
+    public static class UserProfileDto {
+        private Long id;
+        private String nickname;
+//        private String profileImageUrl;
+    }
 }

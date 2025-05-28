@@ -4,7 +4,6 @@ import com.group_platform.response.ResponseDto;
 import com.group_platform.security.dto.CustomUserDetails;
 import com.group_platform.user.dto.UserDto;
 import com.group_platform.user.dto.UserResponseDto;
-import com.group_platform.user.entity.User;
 import com.group_platform.user.service.UserService;
 import com.group_platform.util.UriComponent;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,13 +11,10 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +40,7 @@ public class UserController {
     //회원 정보 수정
     @PatchMapping("/users/my")
     public ResponseEntity<?> updateUser(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UserDto.UpdateRequest updateRequest) {
-        UserDto.updateResponse updateResponse = userService.updateUser(userDetails.getId(),updateRequest);
+        UserDto.UpdateResponse updateResponse = userService.updateUser(userDetails.getId(),updateRequest);
         return new ResponseEntity<>(
                 new ResponseDto.SingleResponseDto<>(updateResponse), HttpStatus.OK);
     }

@@ -25,7 +25,7 @@ public enum ExceptionCode {
     GROUP_NOT_EXIST(404, "그룹이 존재하지 않습니다"),
     INVALID_MAX_CAPACITY(400, "최대인원은 현재 인원 이상이어야 합니다"),
     MEMBER_NOT_FOUND(404, "그룹의 멤버가 아닙니다"),//403 forbidden?
-    NO_PERMISSION(403, "수정 권한이 없습니다"),
+    NO_PERMISSION(403, "해당 권한이 없습니다"),
     GROUP_DELETE_DINED_BY_EXISTING_MEMBERS(409, "다른 멤버가 있어서 그룹을 삭제할 수 없습니다"),
     GROUP_DISABLED(403, "비활성화된 그룹입니다"),
     GROUP_DELETED(410, "그룹이 삭제된 상태입니다"),
@@ -35,8 +35,14 @@ public enum ExceptionCode {
     //투두 관련
     DUE_DATE_PAST(400, "마감일은 오늘 이전이면 안됩니다"),
     TODO_NOT_EXIST(404, "Todo가 존재하지 않습니다"),
-    TODO_NOT_ASSIGNED(400, "할당 인원이 설정되지 않았습니다");
+    TODO_NOT_ASSIGNED(400, "할당 인원이 설정되지 않았습니다"),
 
+    //게시글관련
+    POST_NOT_EXIST(404, "게시글이 존재하지 않습니다"),
+
+    //댓글관련
+    COMMENT_NOT_EXIST(404, "댓글이 존재하지 않습니다"),
+    REPLY_NOT_EXIST(404, "대댓글이 존재하지 않습니다");
 
 
     private int status;

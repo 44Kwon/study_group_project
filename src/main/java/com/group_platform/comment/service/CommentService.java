@@ -16,6 +16,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,9 +98,9 @@ public class CommentService {
 
         //댓글에 대해서 대댓글 갯수가져옴
         List<CommentDto.IsCommentHaveReplyDto> isCommentHaveReplyDto = commentRepository.existsByRelies(commentIds);
-        List<CommentDto.ResponseCommentList> commentLists = commentMapper.commentsToResponseList(pagedComments.getContent(), isCommentHaveReplyDto);
+        List<CommentDto.ResponseCommentList> responseCommentLists = commentMapper.commentsToResponseList(pagedComments.getContent(), isCommentHaveReplyDto);
 
-        return new PageImpl<>(commentLists, pageable, pagedComments.getTotalElements());
+        return new PageImpl<>(responseCommentLists, pageable, pagedComments.getTotalElements());
     }
 
     //대댓글 가져오기

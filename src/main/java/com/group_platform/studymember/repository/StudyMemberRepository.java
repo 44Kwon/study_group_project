@@ -1,7 +1,6 @@
 package com.group_platform.studymember.repository;
 
 import com.group_platform.studymember.entity.StudyMember;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,14 +10,14 @@ import java.util.Optional;
 
 @Repository
 public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
-    Optional<StudyMember> findByUserIdAndStudyGroupId(Long userId, Long studyGroupId);
-    Optional<StudyMember> findByUserIdAndStudyGroupIdAndStatus(Long userId, Long studyGroupId, StudyMember.ActiveStatus status);
+    Optional<StudyMember> findByUserIdAndStudyGroup_Id(Long userId, Long studyGroupId);
+    Optional<StudyMember> findByUser_IdAndStudyGroup_IdAndStatus(Long userId, Long studyGroupId, StudyMember.ActiveStatus status);
 
-    boolean existsByUserIdAndStudyGroupIdAndRoleAndStatus(Long userId, Long studyGroupId, StudyMember.InGroupRole role, StudyMember.ActiveStatus status);
-    boolean existsByUserIdAndStudyGroupIdAndStatus(Long user_id, Long studyGroup_id, StudyMember.ActiveStatus status);
-    long countByStudyGroupIdAndStatus(Long studyGroupId, StudyMember.ActiveStatus status);
+    boolean existsByUser_IdAndStudyGroup_IdAndRoleAndStatus(Long userId, Long studyGroupId, StudyMember.InGroupRole role, StudyMember.ActiveStatus status);
+    boolean existsByUser_IdAndStudyGroup_IdAndStatus(Long user_id, Long studyGroup_id, StudyMember.ActiveStatus status);
+    long countByStudyGroup_IdAndStatus(Long studyGroupId, StudyMember.ActiveStatus status);
 
-    Optional<StudyMember> findFirstByStudyGroupIdAndStatusAndIdNotOrderByJoinDateAsc(Long studyGroupId, StudyMember.ActiveStatus status, Long id);
+    Optional<StudyMember> findFirstByStudyGroup_IdAndStatusAndIdNotOrderByJoinDateAsc(Long studyGroupId, StudyMember.ActiveStatus status, Long id);
 
     @Query("SELECT sm FROM StudyMember sm JOIN FETCH sm.user WHERE sm.studyGroup.id = :studyGroupId AND sm.status = :status ORDER BY sm.joinDate ASC")
     List<StudyMember> findAllByStudyGroupIdAndStatusOrderByJoinDateAsc(Long studyGroupId, StudyMember.ActiveStatus status);

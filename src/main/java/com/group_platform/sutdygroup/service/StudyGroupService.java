@@ -176,7 +176,7 @@ public class StudyGroupService {
         }
 
         //가입 되어있는 사람인지 체크
-        if (studyMemberRepository.existsByUserIdAndStudyGroupIdAndStatus(userId, groupId, StudyMember.ActiveStatus.ACTIVE)) {
+        if (studyMemberRepository.existsByUser_IdAndStudyGroup_IdAndStatus(userId, groupId, StudyMember.ActiveStatus.ACTIVE)) {
             throw new BusinessLogicException(ExceptionCode.ALREADY_A_MEMBER);
         }
 
@@ -211,7 +211,7 @@ public class StudyGroupService {
 
         // 그룹장이면 탈퇴 시 넘겨주기
         if (studyMember.getRole() == StudyMember.InGroupRole.LEADER) {
-            StudyMember nextLeader = studyMemberRepository.findFirstByStudyGroupIdAndStatusAndIdNotOrderByJoinDateAsc(
+            StudyMember nextLeader = studyMemberRepository.findFirstByStudyGroup_IdAndStatusAndIdNotOrderByJoinDateAsc(
                             groupId, StudyMember.ActiveStatus.ACTIVE, studyMember.getId())
                     .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
 
@@ -252,7 +252,7 @@ public class StudyGroupService {
         studyGroup.changeGroupStatus(StudyGroup.GroupStatus.ACTIVE);
     }
 
-    private StudyGroup validateByGroupId(Long groupId) {
+    public StudyGroup validateByGroupId(Long groupId) {
         return studyGroupRepository.findById(groupId)
                 .orElseThrow(()-> new BusinessLogicException(ExceptionCode.GROUP_NOT_EXIST));
     }

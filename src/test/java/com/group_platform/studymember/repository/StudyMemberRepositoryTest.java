@@ -6,13 +6,11 @@ import com.group_platform.sutdygroup.repository.StudyGroupRepository;
 import com.group_platform.user.entity.User;
 import com.group_platform.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -87,7 +85,7 @@ class StudyMemberRepositoryTest {
     @DisplayName("스터디 멤버 가져오기")
     void testFindByUserIdAndStudyGroupIdAndStatus() {
         //when
-        Optional<StudyMember> result = studyMemberRepository.findByUserIdAndStudyGroupIdAndStatus(1L, 1L, StudyMember.ActiveStatus.ACTIVE);
+        Optional<StudyMember> result = studyMemberRepository.findByUser_IdAndStudyGroup_IdAndStatus(1L, 1L, StudyMember.ActiveStatus.ACTIVE);
         //then
         assertThat(result).isPresent();
         StudyMember studyMember = result.get();
@@ -98,7 +96,7 @@ class StudyMemberRepositoryTest {
     @DisplayName("스터디 멤버 존재하는지")
     void testExistsByUserIdAndStudyGroupIdAndRole() {
         //when
-        boolean exists = studyMemberRepository.existsByUserIdAndStudyGroupIdAndRoleAndStatus(2L, 1L, StudyMember.InGroupRole.MEMBER, StudyMember.ActiveStatus.ACTIVE);
+        boolean exists = studyMemberRepository.existsByUser_IdAndStudyGroup_IdAndRoleAndStatus(2L, 1L, StudyMember.InGroupRole.MEMBER, StudyMember.ActiveStatus.ACTIVE);
         //then
         assertThat(exists).isTrue();
     }
@@ -107,7 +105,7 @@ class StudyMemberRepositoryTest {
     @DisplayName("스터디 멤버 숫자 일치확인")
     void testCountByStudyGroupIdAndStatus() {
         //when
-        long count = studyMemberRepository.countByStudyGroupIdAndStatus(1L, StudyMember.ActiveStatus.ACTIVE);
+        long count = studyMemberRepository.countByStudyGroup_IdAndStatus(1L, StudyMember.ActiveStatus.ACTIVE);
 
         //then
         assertThat(count).isEqualTo(2);
@@ -118,7 +116,7 @@ class StudyMemberRepositoryTest {
     void testFindFirstByStudyGroupIdAndStatusOrderByJoinDateAsc() {
         //when
         Optional<StudyMember> studyMember = studyMemberRepository.findById(1L);
-        Optional<StudyMember> result = studyMemberRepository.findFirstByStudyGroupIdAndStatusAndIdNotOrderByJoinDateAsc
+        Optional<StudyMember> result = studyMemberRepository.findFirstByStudyGroup_IdAndStatusAndIdNotOrderByJoinDateAsc
                 (1L, StudyMember.ActiveStatus.ACTIVE, studyMember.get().getId());
 
         //then

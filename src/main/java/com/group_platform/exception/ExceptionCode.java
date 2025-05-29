@@ -40,6 +40,7 @@ public enum ExceptionCode {
     //게시글관련
     POST_NOT_EXIST(404, "게시글이 존재하지 않습니다"),
     INVALID_POST_TYPE(400, "해당 게시글 타입은 허용되지 않습니다"),
+    INVALID_BOARD_ACCESS(403, "해당 게시판에서는 접근할 수 없는 게시글입니다"),
 
     //댓글관련
     COMMENT_NOT_EXIST(404, "댓글이 존재하지 않습니다"),

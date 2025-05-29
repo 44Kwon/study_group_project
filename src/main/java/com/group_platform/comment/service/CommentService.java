@@ -50,7 +50,9 @@ public class CommentService {
         postRepository.incrementCommentCount(post.getId());
 
         // parent id, user정보 맵핑관련 전부 매퍼에서 처리함
-        return commentMapper.commentToResponse(savedComment);
+        CommentDto.Response response = commentMapper.commentToResponse(savedComment);
+        response.setMine(true);
+        return response;
     }
 
     public CommentDto.Response updateComment(Long userId, CommentDto.UpdateRequest updateRequest) {
@@ -67,8 +69,9 @@ public class CommentService {
 
         Optional.ofNullable(updateRequest.getContent())
                 .ifPresent(comment::changeContent);
-
-        return commentMapper.commentToResponse(comment);
+        CommentDto.Response response = commentMapper.commentToResponse(comment);
+        response.setMine(true);
+        return response;
     }
 
     public void deleteComment(Long userId, Long commentId) {
@@ -84,7 +87,7 @@ public class CommentService {
         postRepository.decrementCommentCount(comment.getPost().getId());
     }
 
-    public Page<CommentDto.ResponseCommentList> getAllComments(Long postId, Pageable pageable) {
+    public Page<CommentDto.ResponseCommentList> getAllComments(Long userId, Long postId, Pageable pageable) {
         // 대댓글이 아닌 comment들 가져와서 페이징처리(parent_id가 없는것들)
         Page<Comment> pagedComments = commentRepository.findAllByPostIdAndParentIdIsNull(postId,
                 PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "createdAt")));
@@ -98,17 +101,32 @@ public class CommentService {
         List<CommentDto.IsCommentHaveReplyDto> isCommentHaveReplyDto = commentRepository.existsByRelies(commentIds);
         List<CommentDto.ResponseCommentList> responseCommentLists = commentMapper.commentsToResponseList(pagedComments.getContent(), isCommentHaveReplyDto);
 
+        //내가 작성한건지 표시하기 위해서
+        responseCommentLists.forEach(responseComment -> {
+            if(responseComment.getWriter().getId().equals(userId)) {
+                responseComment.setMine(true);
+            }
+        });
+
         return new PageImpl<>(responseCommentLists, pageable, pagedComments.getTotalElements());
     }
 
     //대댓글 가져오기
-    public List<CommentDto.Response> getReplies(Long commentId) {
+    public List<CommentDto.Response> getReplies(Long userId, Long commentId) {
         //parent id가 commnetId 인 것 다 가져오기
         List<Comment> allByParentId = commentRepository.findAllByParentId(commentId);
         if (allByParentId.isEmpty()) {
             throw new BusinessLogicException(ExceptionCode.REPLY_NOT_EXIST);
         }
-        return commentMapper.commentsToResponse(allByParentId);
+        List<CommentDto.Response> responses = commentMapper.commentsToResponse(allByParentId);
+
+        //내가쓴건지 맵핑처리는 여기서
+        responses.forEach(response -> {
+            if(response.getWriter().getId().equals(userId)) {
+                response.setMine(true);
+            }
+        });
+        return responses;
     }
 
     private Comment validateCommentWithCommentId(Long commentId) {

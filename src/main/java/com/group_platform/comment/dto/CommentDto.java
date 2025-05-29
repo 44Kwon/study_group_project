@@ -42,6 +42,7 @@ public class CommentDto {
         private Long parent_id;
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
         private LocalDateTime updatedAt;
+        private boolean isMine;
     }
 
     @Getter
@@ -65,5 +66,6 @@ public class CommentDto {
         private int replyCount;
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
         private LocalDateTime updatedAt;
+        private boolean isMine;
     }
 }

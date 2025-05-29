@@ -50,16 +50,18 @@ public class CommentController {
 
     //댓글 보기(페이징)
     @GetMapping("/posts/{post-id}/comments")
-    public ResponseEntity<?> getComments(@PathVariable("post-id") Long postId,
+    public ResponseEntity<?> getComments(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                         @PathVariable("post-id") Long postId,
                                          @PageableDefault(value = 10) Pageable pageable) {
-        Page<CommentDto.ResponseCommentList> responseCommentLists = commentService.getAllComments(postId, pageable);
+        Page<CommentDto.ResponseCommentList> responseCommentLists = commentService.getAllComments(userDetails.getId(),postId, pageable);
         return ResponseEntity.ok(new ResponseDto.MultipleResponseDto<>(responseCommentLists.getContent(), responseCommentLists));
     }
 
     //대댓글 불러오기
     @GetMapping("/comments/{comment-id}/replies")
-    public ResponseEntity<?> getReplies(@PathVariable("comment-id") Long commentId) {
-        List<CommentDto.Response> replies = commentService.getReplies(commentId);
+    public ResponseEntity<?> getReplies(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                        @PathVariable("comment-id") Long commentId) {
+        List<CommentDto.Response> replies = commentService.getReplies(userDetails.getId(),commentId);
         return ResponseEntity.ok(new ResponseDto.SingleResponseDto<>(replies));
     }
 }

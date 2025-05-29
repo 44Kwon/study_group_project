@@ -55,48 +55,4 @@ public class PostDto {
         private String content;
         private PostType postType;
     }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    //게시글 상세조회
-    public static class Response {
-        private Long id;
-        private String title;
-        private String content;
-        private int viewCount;
-        private int comment_count;
-        private boolean isPinned;
-        private PostType postType;
-        private int likes;
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
-        private LocalDateTime createdAt;
-        //값이 있으면 해당 스터디그룹 소속글, 없으면 공통 게시판
-        private Long studyGroupId;
-        //게시글 작성자
-        private UserDto.UserProfileDto writer;
-        //댓글들
-        private List<CommentDto.ResponseCommentList> comments;
-        //댓글 페이징정보
-        private PageInfo commentsPage;
-    }
-
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    //게시글 목록조회
-    public static class ResponseList {
-        private Long id;
-        private String title;
-        private int viewCount;
-        private int comment_count;
-        private boolean isPinned;
-        private PostType postType;
-        private int likes;
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
-        private LocalDateTime createdAt;
-        //게시글 작성자
-        private UserDto.UserProfileDto writer;
-    }
 }

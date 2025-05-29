@@ -8,7 +8,6 @@ import com.group_platform.exception.BusinessLogicException;
 import com.group_platform.exception.ExceptionCode;
 import com.group_platform.post.entity.Post;
 import com.group_platform.post.repository.PostRepository;
-import com.group_platform.post.service.PostService;
 import com.group_platform.user.entity.User;
 import com.group_platform.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +24,6 @@ import java.util.Optional;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final UserService userService;
-    private final PostService postService;
     private final PostRepository postRepository;
     private final CommentMapper commentMapper;
 
@@ -35,7 +32,8 @@ public class CommentService {
         User user = userService.validateUserWithUserId(userId);
 
         //게시글검증
-        Post post = postService.validatePostWithPostId(postId);
+        Post post = postRepository.findById(postId).orElseThrow(()->
+                new BusinessLogicException(ExceptionCode.POST_NOT_EXIST));
 
         Comment requestComment = commentMapper.createRequestToComment(createRequest);
 
@@ -120,4 +118,9 @@ public class CommentService {
     private Comment validateCommentWithCommentIdAndUser(Long commentId) {
         return commentRepository.findByCommentWithUser(commentId).orElseThrow(()-> new BusinessLogicException(ExceptionCode.COMMENT_NOT_EXIST));
     }
+
+    //내가 쓴 댓글인지 검증(현재는 무조건 가져와서 객체 비교나 id 비교 중 -> 오류 검증을 나누기 위해서)
+//    private Comment ValidateCommentIsMy(Long commentId, Long userId) {
+//        return commentRepository.findByIdAndUserId(commentId,userId).orElseThrow(()-> new BusinessLogicException(ExceptionCode.NO_PERMISSION));
+//    }
 }

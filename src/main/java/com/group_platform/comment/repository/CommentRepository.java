@@ -25,6 +25,10 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, CustomC
 
     List<Comment> findAllByParentId(Long parentId);
 
+    Optional<Comment> findByIdAndUserId(Long commentId, Long userId);
+
+    long countAllByPostId(Long postId);
+
     //대댓글 있는지 확인하는 쿼리 -> exist나 count서브쿼리는 10번쳐야 한다.
     //SELECT parent_id, COUNT(*)
     //FROM comment

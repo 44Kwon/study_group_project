@@ -21,6 +21,11 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
 
     @Query("SELECT sm FROM StudyMember sm JOIN FETCH sm.user WHERE sm.studyGroup.id = :studyGroupId AND sm.status = :status ORDER BY sm.joinDate ASC")
     List<StudyMember> findAllByStudyGroupIdAndStatusOrderByJoinDateAsc(Long studyGroupId, StudyMember.ActiveStatus status);
+
+    @Query("SELECT sm FROM StudyMember sm JOIN FETCH sm.user JOIN FETCH sm.studyGroup WHERE sm.user.id = :userId AND sm.studyGroup.id = :groupId AND sm.status = :status")
+    Optional<StudyMember> findStudyMemberWithUserAndGroup(Long userId, Long groupId, StudyMember.ActiveStatus status);
+
+    boolean existsByUserIdAndStatusAndRole(Long userId, StudyMember.ActiveStatus status, StudyMember.InGroupRole role);
     //엔티티그래프 방법
 //    @EntityGraph(attributePaths = {"user"})
 //    List<StudyMember> findAllByStudyGroupIdAndStatusOrderByJoinDateAsc(Long studyGroupId, StudyMember.ActiveStatus status);

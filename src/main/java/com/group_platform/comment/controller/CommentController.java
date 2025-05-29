@@ -33,8 +33,8 @@ public class CommentController {
     //댓글 수정
     @PutMapping("/comments/{comment-id}")
     public ResponseEntity<?> updateComment(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                @PathVariable("comment-id") Long commentId,
-                                                @RequestBody @Valid CommentDto.UpdateRequest updateRequest) {
+                                           @PathVariable("comment-id") Long commentId,
+                                           @RequestBody @Valid CommentDto.UpdateRequest updateRequest) {
         updateRequest.setId(commentId);
         CommentDto.Response response = commentService.updateComment(userDetails.getId(),updateRequest);
         return ResponseEntity.ok(new ResponseDto.SingleResponseDto<>(response));
@@ -43,7 +43,7 @@ public class CommentController {
     //댓글 삭제
     @DeleteMapping("/comments/{comment-id}")
     public ResponseEntity<?> deleteComment(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                @PathVariable("comment-id") Long commentId) {
+                                           @PathVariable("comment-id") Long commentId) {
         commentService.deleteComment(userDetails.getId(), commentId);
         return ResponseEntity.noContent().build();
     }

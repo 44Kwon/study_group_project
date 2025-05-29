@@ -56,4 +56,9 @@ public class StudyMemberService {
     public List<StudyMemberDto.Response> getGroupMembers(Long groupId) {
         return studyMemberMapper.StudyMembersToResponse(studyMemberRepository.findAllByStudyGroupIdAndStatusOrderByJoinDateAsc(groupId, StudyMember.ActiveStatus.ACTIVE));
     }
+
+    //한번에 그룹,유저 정보까지 fetch join
+    public StudyMember validateMemberWithUserAndGroup(Long userId, Long groupId,StudyMember.ActiveStatus status) {
+        return studyMemberRepository.findStudyMemberWithUserAndGroup(userId, groupId, status).orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+    }
 }

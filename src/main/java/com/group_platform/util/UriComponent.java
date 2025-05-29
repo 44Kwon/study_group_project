@@ -11,4 +11,11 @@ public class UriComponent {
                 .buildAndExpand(id)
                 .toUri();
     }
+
+    public static URI createUri(String defaultUrl, long id1, long id2) {
+        return UriComponentsBuilder.newInstance()
+                .path(defaultUrl + "/{id}")
+                .buildAndExpand(id1,id2)
+                .toUri();
+    }
 }

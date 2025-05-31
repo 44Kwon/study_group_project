@@ -55,4 +55,22 @@ public class PostDto {
         private String content;
         private PostType postType;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdatePinnedResponse{
+        private Long id;
+        private boolean pinned;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateLikeOrFavouriteResponse{
+        private Long id;
+        private boolean status;
+    }
 }

@@ -83,4 +83,8 @@ public class Post extends BaseEntity {
     public void changePostType (PostType postType) {
         this.postType = postType;
     }
+
+    public void changePinned (boolean pinned) {
+        isPinned = pinned;
+    }
 }

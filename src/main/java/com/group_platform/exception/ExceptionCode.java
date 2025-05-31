@@ -41,10 +41,22 @@ public enum ExceptionCode {
     POST_NOT_EXIST(404, "게시글이 존재하지 않습니다"),
     INVALID_POST_TYPE(400, "해당 게시글 타입은 허용되지 않습니다"),
     INVALID_BOARD_ACCESS(403, "해당 게시판에서는 접근할 수 없는 게시글입니다"),
+    PINNED_VALID_ONLY_LEADER(400, "고정 등록,취소는 오직 그룹의 리더만 가능합니다"),
+    PINNED_NUM_IS_OVER(400, "고정글 갯수가 10개를 초과합니다"),
+    KEYWORD_NOT_EXIST(400, "검색 결과가 없습니다"),
 
     //댓글관련
     COMMENT_NOT_EXIST(404, "댓글이 존재하지 않습니다"),
-    REPLY_NOT_EXIST(404, "대댓글이 존재하지 않습니다");
+    REPLY_NOT_EXIST(404, "대댓글이 존재하지 않습니다"),
+
+
+    //좋아요관련
+    LIKE_AUTH_REQUIRED(401,"좋아요는 로그인이 필요한 기능입니다"),
+    LIKE_DUPLICATED(409, "이미 좋아요를 하였습니다"),
+
+
+    FAVORITE_AUTH_REQUIRED(401, "찜은 로그인이 필요한 기능입니다"),
+    FAVORITE_DUPLICATED(409, "이미 찜을 하였습니다");
 
 
     private int status;

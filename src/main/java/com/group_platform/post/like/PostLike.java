@@ -31,4 +31,9 @@ public class PostLike {
     @MapsId("userId")
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
+
+    public void likePost(Post post, User user) {
+        this.post = post;
+        this.user = user;
+    }
 }

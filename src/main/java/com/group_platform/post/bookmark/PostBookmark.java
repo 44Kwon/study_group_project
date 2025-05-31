@@ -32,4 +32,9 @@ public class PostBookmark {
     @MapsId("userId") // 복합키에서 userId를 사용하여 연관 관계를 설정 (필수는 아님)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
+
+    public void bookmarkPost(Post post, User user) {
+        this.post = post;
+        this.user = user;
+    }
 }

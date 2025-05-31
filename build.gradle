@@ -52,6 +52,10 @@ dependencies {
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
+    //엘라스틱서치
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    //비동기
+    implementation 'org.springframework.boot:spring-boot-starter-aop' // @Async
 
     //테스트전용 h2
     testRuntimeOnly 'com.h2database:h2'

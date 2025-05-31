@@ -35,6 +35,10 @@ public class PostResponseDto {
     private UserDto.UserProfileDto writer;
     //내가쓴건지
     private boolean isMine;
+    //좋아요 했는지
+    private boolean isLiked;
+    //찜 했는지
+    private boolean isBookmarked;
     //댓글들
     private List<CommentDto.ResponseCommentList> comments;
     //댓글 페이징정보

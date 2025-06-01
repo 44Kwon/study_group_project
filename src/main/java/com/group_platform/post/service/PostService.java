@@ -54,10 +54,15 @@ public class PostService {
         //연관관계용 user검증
         User user = userService.validateUserWithUserId(userId);
 
-        Post commonToPost = postMapper.createCommonToPost(postDto);
         //NOTICE("공지"),INTRODUCTION("자기소개") 튕기게
-        if (commonToPost.getPostType() == PostType.NOTICE || commonToPost.getPostType() == PostType.INTRODUCTION) {
+        if (postDto.getPostType() == PostType.NOTICE || postDto.getPostType() == PostType.INTRODUCTION) {
             throw new BusinessLogicException(ExceptionCode.INVALID_POST_TYPE);
+        }
+
+        Post commonToPost = postMapper.createCommonToPost(postDto);
+        if(commonToPost.getPostType() == null) {
+            //매퍼사용에서 빌더디폴트가 안먹힘...
+            commonToPost.setPostType(PostType.GENERAL);
         }
 
         commonToPost.addCommonPost(user);
@@ -231,6 +236,9 @@ public class PostService {
     //공통게시글 검색
     @Transactional(readOnly = true)
     public Page<PostResponseListDto> searchCommonPosts(Long userId, String keyword, Pageable pageable) {
+        if(keyword == null || keyword.isEmpty()) {
+            throw new BusinessLogicException(ExceptionCode.KEYWORD_MISSING);
+        }
         //elasticsearch에서 id값만 가져오기
         Page<Long> searchCommonPosts = postSearchRepository.getSearchCommonPosts(keyword, pageable);
 
@@ -245,6 +253,9 @@ public class PostService {
     //그룹게시글 검색
     @Transactional(readOnly = true)
     public PostListResponse searchGroupPosts(Long userId, Long groupId, String keyword, Pageable pageable) {
+        if(keyword == null || keyword.isEmpty()) {
+            throw new BusinessLogicException(ExceptionCode.KEYWORD_MISSING);
+        }
         //유저가 해당 스터디그룹 멤버인지
         boolean isMember = studyMemberRepository.existsByUser_IdAndStudyGroup_IdAndStatus(userId, groupId, StudyMember.ActiveStatus.ACTIVE);
         //그룹원 아니면 튕기기

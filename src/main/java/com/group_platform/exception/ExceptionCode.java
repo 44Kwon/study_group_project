@@ -44,6 +44,7 @@ public enum ExceptionCode {
     PINNED_VALID_ONLY_LEADER(400, "고정 등록,취소는 오직 그룹의 리더만 가능합니다"),
     PINNED_NUM_IS_OVER(400, "고정글 갯수가 10개를 초과합니다"),
     KEYWORD_NOT_EXIST(400, "검색 결과가 없습니다"),
+    KEYWORD_MISSING(400, "검색어를 입력해주세요"),
 
     //댓글관련
     COMMENT_NOT_EXIST(404, "댓글이 존재하지 않습니다"),

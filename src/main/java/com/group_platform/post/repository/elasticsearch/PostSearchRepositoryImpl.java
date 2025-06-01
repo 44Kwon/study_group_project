@@ -34,12 +34,15 @@ public class PostSearchRepositoryImpl implements CustomPostSearchRepository {
             Query contentQuery = MatchQuery.of(m -> m.field("content").query(keyword))._toQuery();
             Query groupIdExistsQuery = ExistsQuery.of(e -> e.field("groupId"))._toQuery();
 
+//            Query commonPostGroupIdQuery = TermQuery.of(t -> t.field("groupId").value(""))._toQuery();
+
             //BoolQuery에서 should는 OR 조건 역할
             BoolQuery boolQuery = BoolQuery.of(b -> b
                     .should(titleQuery)
                     .should(contentQuery)
                     .minimumShouldMatch("1")  // 제목이나 내용 중 하나는 반드시 포함
-                    .mustNot(groupIdExistsQuery)  // groupId가 있는 문서는 제외
+                     .mustNot(groupIdExistsQuery)
+//                    .filter(commonPostGroupIdQuery) // groupId가 ""인 것들만
             );
 
             //search 요청 생성
@@ -48,7 +51,7 @@ public class PostSearchRepositoryImpl implements CustomPostSearchRepository {
                     .query(boolQuery._toQuery())
                     .from((int)pageable.getOffset())
                     .size(pageable.getPageSize())
-                    .sort(sort->sort.field(f->f.field("createdAt").order(SortOrder.Desc)))
+//                    .sort(sort->sort.field(f->f.field("createdAt").order(SortOrder.Desc)))
             );
 
             //검색실행
@@ -62,7 +65,7 @@ public class PostSearchRepositoryImpl implements CustomPostSearchRepository {
                         if (hit.source() == null) {
                             throw new BusinessLogicException(ExceptionCode.KEYWORD_NOT_EXIST);
                         }
-                        return Long.valueOf(hit.source().getContent());
+                        return Long.valueOf(hit.source().getId());
                     })
                     .toList();
 
@@ -96,7 +99,7 @@ public class PostSearchRepositoryImpl implements CustomPostSearchRepository {
                     .query(boolQuery._toQuery())
                     .from((int)pageable.getOffset())
                     .size(pageable.getPageSize())
-                    .sort(sort->sort.field(f->f.field("createdAt").order(SortOrder.Desc)))
+//                    .sort(sort->sort.field(f->f.field("createdAt").order(SortOrder.Desc)))
             );
 
             //검색실행

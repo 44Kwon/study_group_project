@@ -10,6 +10,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -51,14 +52,14 @@ public class PostRepositoryImpl implements CustomPostRepository {
         //responseDto에 isMine를 위해
         BooleanExpression isMine = (currentUserId != null) ?
                 post.user.id.eq(currentUserId) :
-                null;   //Expressions.FALSE : 이게 더 명확할 수 있음
+                Expressions.FALSE;   //null시 오류가 남
 
         List<PostResponseListDto> response = jpaQueryFactory
                 .select(new QPostResponseListDto
-                        (post.id, post.title, post.viewCount, post.comment_count, null, post.postType, post.likeCount, post.createdAt,
+                        (post.id, post.title, post.viewCount, post.comment_count, Expressions.FALSE, post.postType, post.likeCount, post.createdAt,
                                 user.id, user.nickname, isMine))
                 .from(post)
-                .join(user)
+                .join(post.user, user)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -104,7 +105,7 @@ public class PostRepositoryImpl implements CustomPostRepository {
                         (post.id, post.title, post.viewCount, post.comment_count, post.isPinned, post.postType, post.likeCount, post.createdAt,
                                 user.id, user.nickname, isMine))
                 .from(post)
-                .join(user)
+                .join(post.user, user)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -140,7 +141,7 @@ public class PostRepositoryImpl implements CustomPostRepository {
                         (post.id, post.title, post.viewCount, post.comment_count, post.isPinned, post.postType, post.likeCount, post.createdAt,
                                 user.id, user.nickname, isMine))
                 .from(post)
-                .join(user)
+                .join(post.user, user)
                 .where(builder)
                 //정렬조건 (1순위 공지사항+고정)
                 .orderBy(new CaseBuilder()
@@ -161,7 +162,7 @@ public class PostRepositoryImpl implements CustomPostRepository {
         //responseDto에 isMine를 위해
         BooleanExpression isMine = (currentUserId != null) ?
                 post.user.id.eq(currentUserId) :
-                null;   //Expressions.FALSE : 이게 더 명확할 수 있음
+                Expressions.FALSE;   //Expressions.FALSE : 이게 더 명확할 수 있음
 
         //게시글 목록
         List<PostResponseListDto> response = jpaQueryFactory
@@ -169,7 +170,7 @@ public class PostRepositoryImpl implements CustomPostRepository {
                         (post.id, post.title, post.viewCount, post.comment_count, post.isPinned, post.postType, post.likeCount, post.createdAt,
                                 user.id, user.nickname, isMine))
                 .from(post)
-                .join(user)
+                .join(post.user, user)
                 .where(post.id.in(postIds))
                 .orderBy(post.createdAt.desc())
                 .fetch();

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Validator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -69,6 +70,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth->auth
                         .requestMatchers("/", "/api/login","/join","/api/test").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
 //                        .requestMatchers("/my/**").hasAnyRole("ADMIN","USER")
                         .anyRequest().authenticated()   //authenticated : 로그인 된 사용자 모두, denyAll은 전부 막음

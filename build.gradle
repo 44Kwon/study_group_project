@@ -35,7 +35,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -54,8 +54,15 @@ dependencies {
 
     //엘라스틱서치
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    //엘라스틱서치 테스트용
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:elasticsearch'
+
     //비동기
     implementation 'org.springframework.boot:spring-boot-starter-aop' // @Async
+
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
 
     //테스트전용 h2
     testRuntimeOnly 'com.h2database:h2'

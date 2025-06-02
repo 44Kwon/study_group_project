@@ -5,6 +5,8 @@ import com.group_platform.security.dto.CustomUserDetails;
 import com.group_platform.todo.dto.TodoDto;
 import com.group_platform.todo.entity.Todo;
 import com.group_platform.todo.service.TodoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,11 +21,13 @@ import java.util.List;
 @RequestMapping("/study-group/{study-group-id}/todos")
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Todos", description = "그룹 내 할일 관리")
 public class TodoController {
 
     private final TodoService todoService;
 
     @PostMapping
+    @Operation(summary = "그룹 내 할일을 작성", description = "해당 그룹 인원이 할일을 작성하고, 할당인원을 지정한다")
     public ResponseEntity<?> createTodo(@AuthenticationPrincipal CustomUserDetails userDetails,
                                         @PathVariable("study-group-id") Long groupId,
                                         @RequestBody @Valid TodoDto.createRequest createRequest) {
@@ -32,6 +36,7 @@ public class TodoController {
     }
 
     @PatchMapping("/{todo-id}")
+    @Operation(summary = "할일에 대해 업데이트", description = "할일에 대해 업데이트 한다")
     public ResponseEntity<?> updateTodo (@AuthenticationPrincipal CustomUserDetails userDetails,
                                          @PathVariable("study-group-id") Long groupId,
                                          @PathVariable("todo-id") Long todoId,
@@ -41,6 +46,7 @@ public class TodoController {
     }
 
     @GetMapping("/{todo-id}")
+    @Operation(summary = "할일을 조회")
     public ResponseEntity<?> getTodo(@PathVariable("study-group-id") Long groupId,
                                      @PathVariable("todo-id") Long todoId) {
         TodoDto.Response todo = todoService.getTodo(groupId, todoId);
@@ -48,6 +54,7 @@ public class TodoController {
     }
 
     @GetMapping
+    @Operation(summary = "그룹 내 할일을 전부 조회한다", description = "그룹 내 할일을 전부 조회해서 프론트에서 상태에 따라 표 형태로")
     //전체 주는거
     public ResponseEntity<?> getAllTodo(@AuthenticationPrincipal CustomUserDetails userDetails,
                                         @PathVariable("study-group-id") Long groupId) {
@@ -56,6 +63,7 @@ public class TodoController {
     }
 
     @DeleteMapping("/{todo-id}")
+    @Operation(summary = "할일을 삭제")
     public ResponseEntity<?> deleteTodo(@AuthenticationPrincipal CustomUserDetails userDetails,
                                         @PathVariable("study-group-id") Long groupId,
                                         @PathVariable("todo-id") Long todoId) {
@@ -65,6 +73,7 @@ public class TodoController {
 
     @PatchMapping("/{todo-id}/status")
     //상태(예정/진행중/완료) 변경
+    @Operation(summary = "할일에 상태에 대해 변경", description = "상태(예정/진행중/완료)를 변경한다")
     public ResponseEntity<?> changeStatus(@AuthenticationPrincipal CustomUserDetails userDetails,
                                           @PathVariable("study-group-id") Long groupId,
                                           @PathVariable("todo-id") Long todoId,
@@ -74,6 +83,7 @@ public class TodoController {
     }
 
     @PatchMapping("/{todo-id}/assign")
+    @Operation(summary = "할일에 할당 인원을 변경")
     public ResponseEntity<?> changeAssign(@AuthenticationPrincipal CustomUserDetails userDetails,
                                           @PathVariable("study-group-id") Long groupId,
                                           @PathVariable("todo-id") Long todoId,
@@ -84,6 +94,7 @@ public class TodoController {
 
     @GetMapping("/assigned")
     //내가 할당된 목록 (완료된 것은 제외)
+    @Operation(summary = "내가 할당된 할일에 대한 목록조회")
     public ResponseEntity<?> assignedMy(@AuthenticationPrincipal CustomUserDetails userDetails,
                                           @PathVariable("study-group-id") Long groupId) {
         List<TodoDto.ResponseAssignedMy> todos = todoService.assignedMy(userDetails.getId(), groupId);

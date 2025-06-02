@@ -6,6 +6,8 @@ import com.group_platform.user.dto.UserDto;
 import com.group_platform.user.dto.UserResponseDto;
 import com.group_platform.user.service.UserService;
 import com.group_platform.util.UriComponent;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -24,12 +26,14 @@ import java.net.URI;
 //@RequestMapping
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Users", description = "유저관련")
 public class UserController {
 
     private final static String USER_DEFAULT_URI = "/users";
     private final UserService userService;
 
     //회원가입
+    @Operation(summary = "회원가입", description = "요청을 받아 회원가입을 진행합니다")
     @PostMapping("/join")
     public ResponseEntity<?> createUser(@RequestBody @Valid UserDto.CreateRequest createRequest, HttpServletRequest request) {
         Long id = userService.creatUser(createRequest);
@@ -39,6 +43,7 @@ public class UserController {
 
     //회원 정보 수정
     @PatchMapping("/users/my")
+    @Operation(summary = "회원정보 수정",description = "요청을 받아 회원정보를 수정합니다")
     public ResponseEntity<?> updateUser(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UserDto.UpdateRequest updateRequest) {
         UserDto.UpdateResponse updateResponse = userService.updateUser(userDetails.getId(),updateRequest);
         return new ResponseEntity<>(
@@ -47,6 +52,7 @@ public class UserController {
 
     //비밀번호 찾기, 변경
     @PatchMapping("/users/my/password")
+    @Operation(summary = "비밀번호 변경", description = "회원정보 수정과는 다르게 비밀번호 변경은 따로 요청합니다")
     public ResponseEntity<?> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UserDto.UpdatePasswordRequest updatePasswordRequest) {
         userService.updatePassword(userDetails.getId(),updatePasswordRequest);
         return ResponseEntity.ok().build();
@@ -54,6 +60,7 @@ public class UserController {
 
     //회원 정보 조회(자신) - 나중에 타인 것과 다르게 설정을 할 것
     @GetMapping("/users/my")
+    @Operation(summary = "나의 정보 조회")
     public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         UserResponseDto userResponse = userService.getUser(userDetails.getId());
         return new ResponseEntity<>(
@@ -62,6 +69,7 @@ public class UserController {
 
     //회원 정보 조회(타인)
     @GetMapping("/users/{user-id}")
+    @Operation(summary = "타인의 정보를 조회")
     public ResponseEntity<?> getOtherUserInfo(@PathVariable("user-id") @Positive Long userId) {
         UserResponseDto userResponse = userService.getUser(userId);
         return new ResponseEntity<>(
@@ -70,6 +78,7 @@ public class UserController {
 
     //회원 탈퇴
     @DeleteMapping("/users/my")
+    @Operation(summary = "회원탈퇴를 진행합니다")
     public ResponseEntity<?> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletRequest request) {
         userService.deleteUser(userDetails.getId());
 

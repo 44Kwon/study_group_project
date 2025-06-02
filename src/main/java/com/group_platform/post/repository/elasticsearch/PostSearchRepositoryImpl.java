@@ -78,7 +78,7 @@ public class PostSearchRepositoryImpl implements CustomPostSearchRepository {
     }
 
     @Override
-    public Page<Long> geSearchGroupPosts(Long groupId, String keyword, Pageable pageable) {
+    public Page<Long> getSearchGroupPosts(Long groupId, String keyword, Pageable pageable) {
         try {
             //MatchQuery는 텍스트 분석이 적용된 필드에 적합한 검색 쿼리
             Query titleQuery = MatchQuery.of(m -> m.field("title").query(keyword))._toQuery();

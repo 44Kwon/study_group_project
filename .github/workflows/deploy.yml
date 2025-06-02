@@ -39,7 +39,7 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/group_platform:latest
 
-      - name: Deploy with docker-compose
-        run: |
-          docker compose pull
-          docker compose up -d
+#      - name: Deploy with docker-compose
+#        run: |
+#          docker compose pull
+#          docker compose up -d

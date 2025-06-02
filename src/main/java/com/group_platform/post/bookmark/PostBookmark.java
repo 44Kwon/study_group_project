@@ -25,16 +25,17 @@ public class PostBookmark {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("postId") // 복합키에서 postId를 사용하여 연관 관계를 설정
-    @JoinColumn(name = "post_id", insertable = false, updatable = false)
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId") // 복합키에서 userId를 사용하여 연관 관계를 설정 (필수는 아님)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     public void bookmarkPost(Post post, User user) {
         this.post = post;
         this.user = user;
+        this.id = new PostBookmarkId(post.getId(), user.getId());
     }
 }

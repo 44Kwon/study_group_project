@@ -24,16 +24,17 @@ public class PostLike {
 
     @ManyToOne(fetch = FetchType.LAZY)  //기본값이 Eager이기 때문에 Lazy로 변경
     @MapsId("postId")
-    @JoinColumn(name = "post_id", insertable = false, updatable = false)
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)  //기본값이 Eager이기 때문에 Lazy로 변경
     @MapsId("userId")
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     public void likePost(Post post, User user) {
         this.post = post;
         this.user = user;
+        this.id = new PostLikeId(user.getId(), post.getId());
     }
 }

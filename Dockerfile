@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 # 빌드된 JAR 파일 복사 (프로젝트 루트 기준 경로 확인 필요)
-COPY build/libs/group_platform.jar app.jar
+COPY build/libs/group_platform-0.0.1-SNAPSHOT.jar app.jar
 
 # 컨테이너가 사용하는 포트 명시 (Spring 기본 8080)
 EXPOSE 8080

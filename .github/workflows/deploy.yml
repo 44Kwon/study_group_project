@@ -33,11 +33,27 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/group_platform:latest .
+      # 기존 Build Docker image 대신 사용(AMD64와 ARM64 이미지를 모두 생성)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/group_platform:latest
+      - name: Build and push Docker image (Multi-arch)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64/v8 # 빌드할 아키텍처 명시
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/group_platform:latest
+
+        #이렇게 되면 AMD64경고가 뜸. 현재 맥 환경과 안맞음
+#      - name: Build Docker image
+#        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/group_platform:latest .
+#
+#      - name: Push Docker image
+#        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/group_platform:latest
+
+
+
 
 #      - name: Deploy with docker-compose
 #        run: |

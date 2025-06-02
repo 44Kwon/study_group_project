@@ -31,7 +31,7 @@ public class CommentController {
     }
 
     //댓글 수정
-    @PutMapping("/comments/{comment-id}")
+    @PatchMapping("/comments/{comment-id}")
     public ResponseEntity<?> updateComment(@AuthenticationPrincipal CustomUserDetails userDetails,
                                            @PathVariable("comment-id") Long commentId,
                                            @RequestBody @Valid CommentDto.UpdateRequest updateRequest) {
@@ -53,7 +53,8 @@ public class CommentController {
     public ResponseEntity<?> getComments(@AuthenticationPrincipal CustomUserDetails userDetails,
                                          @PathVariable("post-id") Long postId,
                                          @PageableDefault(value = 10) Pageable pageable) {
-        Page<CommentDto.ResponseCommentList> responseCommentLists = commentService.getAllComments(userDetails.getId(),postId, pageable);
+        Long userId = userDetails != null ? userDetails.getId() : null;
+        Page<CommentDto.ResponseCommentList> responseCommentLists = commentService.getAllComments(userId,postId, pageable);
         return ResponseEntity.ok(new ResponseDto.MultipleResponseDto<>(responseCommentLists.getContent(), responseCommentLists));
     }
 

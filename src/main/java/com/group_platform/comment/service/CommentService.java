@@ -78,7 +78,7 @@ public class CommentService {
         //댓글이 있는지
         Comment comment = validateCommentWithCommentId(commentId);
 
-        if (comment.getUser().getId().equals(userId)) {
+        if (!comment.getUser().getId().equals(userId)) {
             throw new BusinessLogicException(ExceptionCode.NO_PERMISSION);
         }
 

@@ -8,7 +8,6 @@ import com.group_platform.exception.ExceptionCode;
 import com.group_platform.post.bookmark.PostBookmark;
 import com.group_platform.post.dto.*;
 import com.group_platform.post.entity.Post;
-import com.group_platform.post.entity.PostDocument;
 import com.group_platform.post.entity.PostType;
 import com.group_platform.post.event.PostCreatedEvent;
 import com.group_platform.post.event.PostDeletedEvent;
@@ -74,6 +73,9 @@ public class PostService {
 
     public Long createGroupPost(Long userId, PostDto.CreateRequestForGroupPost postDto, Long studyGroupId) {
         Post groupToPost = postMapper.createGroupToPost(postDto);
+        if(groupToPost.getPostType() == null) {
+            groupToPost.setPostType(PostType.GENERAL);
+        }
         //RECRUITMENT("모집"),  //모집은 공통 게시판에서만(그룹 내 게시판에서는 튕기게)
         if (groupToPost.getPostType() == PostType.RECRUITMENT) {
             throw new BusinessLogicException(ExceptionCode.INVALID_POST_TYPE);
@@ -268,7 +270,7 @@ public class PostService {
         List<PostResponseListDto> groupPinnedPosts = postRepository.getGroupPinnedPosts(userId, groupId);
 
         //elasticsearch에서 id값만 가져오기
-        Page<Long> searchGroupPosts = postSearchRepository.geSearchGroupPosts(groupId, keyword, pageable);
+        Page<Long> searchGroupPosts = postSearchRepository.getSearchGroupPosts(groupId, keyword, pageable);
         List<Long> searchGroupPostsId = searchGroupPosts.getContent();
         List<PostResponseListDto> searchPosts = postRepository.getSearchPosts(userId, searchGroupPostsId, pageable);
 
@@ -289,7 +291,8 @@ public class PostService {
             throw new BusinessLogicException(ExceptionCode.PINNED_NUM_IS_OVER);
         }
 
-        Post post = validatePost(postId);
+        //게시글이 그룹에 속한 글인지 검증할것
+        Post post = validatePostWithPostIdAndPostId(groupId, postId);
         post.changePinned(true);
         return new PostDto.UpdatePinnedResponse(post.getId(), post.isPinned());
     }
@@ -302,7 +305,7 @@ public class PostService {
             throw new BusinessLogicException(ExceptionCode.PINNED_VALID_ONLY_LEADER);
         }
 
-        Post post = validatePost(postId);
+        Post post = validatePostWithPostIdAndPostId(groupId, postId);
         post.changePinned(false);
         return new PostDto.UpdatePinnedResponse(post.getId(), post.isPinned());
     }
@@ -434,5 +437,9 @@ public class PostService {
         response.setComments(commentListPage.getContent());
         response.setCommentsPage(
                 new PageInfo(commentListPage.getNumber()+1, commentListPage.getSize(), commentListPage.getTotalElements(), commentListPage.getTotalPages()));
+    }
+
+    private Post validatePostWithPostIdAndPostId(Long groupId, Long postId) {
+        return postRepository.findByIdAndStudyGroupId(postId, groupId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.POST_NOT_EXIST));
     }
 }

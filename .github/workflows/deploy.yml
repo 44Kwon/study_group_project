@@ -12,7 +12,7 @@ jobs:
     env:
       MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
       REDIS_PASSWORD:
-      ELASTIC_PASSWORD: 1234
+      ELASTIC_PASSWORD: ${{ secrets.ELASTIC_SEARCH_PASSWORD }}
 
     steps:
       - name: Checkout code

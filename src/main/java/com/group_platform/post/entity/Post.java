@@ -5,10 +5,7 @@ import com.group_platform.comment.entity.Comment;
 import com.group_platform.sutdygroup.entity.StudyGroup;
 import com.group_platform.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +43,7 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
+    @Setter
     private PostType postType = PostType.GENERAL; //일반
 
     @ManyToOne(fetch = FetchType.LAZY)

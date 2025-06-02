@@ -61,7 +61,8 @@ public class PostController {
     @GetMapping("/posts/{post-id}")
     public ResponseEntity<?> getCommonPost(@AuthenticationPrincipal CustomUserDetails userDetails,
                                            @PathVariable("post-id") @Positive Long postId) {
-        PostResponseDto post = postService.getCommonPost(userDetails.getId(),postId);
+        Long userId = userDetails != null ? userDetails.getId() : null;
+        PostResponseDto post = postService.getCommonPost(userId,postId);
         return ResponseEntity.ok(new ResponseDto.SingleResponseDto<>(post));
     }
 
@@ -87,8 +88,9 @@ public class PostController {
                                                  @RequestParam(required = false) PostType postType,
                                                  @RequestParam(defaultValue = "LATEST") PostSortType sort,
                                                  @PageableDefault(size = 10) Pageable pageable) {
+        Long userId = userDetails != null ? userDetails.getId() : null;
         // (공통 게시글 상단고정 불가)
-        Page<PostResponseListDto> commonPosts = postService.getCommonPosts(userDetails.getId(), postType, sort, pageable);
+        Page<PostResponseListDto> commonPosts = postService.getCommonPosts(userId, postType, sort, pageable);
         List<PostResponseListDto> content = commonPosts.getContent();
         return new ResponseEntity<>(new ResponseDto.MultipleResponseDto<>(content,commonPosts), HttpStatus.OK);
     }
@@ -108,7 +110,8 @@ public class PostController {
     public ResponseEntity<?> getPagedSearchCommonPosts(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                        @RequestParam("q") String query,
                                                        @PageableDefault(size = 10) Pageable pageable) {
-        Page<PostResponseListDto> postResponseListDtos = postService.searchCommonPosts(userDetails.getId(), query, pageable);
+        Long userId = userDetails != null ? userDetails.getId() : null;
+        Page<PostResponseListDto> postResponseListDtos = postService.searchCommonPosts(userId, query, pageable);
         List<PostResponseListDto> content = postResponseListDtos.getContent();
         return new ResponseEntity<>(new ResponseDto.MultipleResponseDto<>(content,postResponseListDtos), HttpStatus.OK);
     }

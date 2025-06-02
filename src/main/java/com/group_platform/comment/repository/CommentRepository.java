@@ -20,7 +20,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, CustomC
 
     //댓글페이징
     //Jpql에서는 offset, limit을 pageable 보고 알아서 처리해준다.
-    @Query("SELECT c FROM Comment c JOIN FETCH c.user u WHERE c.post.id = :postId AND c.parent IS NULL  ORDER BY c.id DESC")
+    //pageable에 있는 orderby 사용(현재 createdAt asc)
+    @Query("SELECT c FROM Comment c JOIN FETCH c.user u WHERE c.post.id = :postId AND c.parent IS NULL")
     Page<Comment> findAllByPostIdAndParentIdIsNull(Long postId, Pageable pageable);
 
     List<Comment> findAllByParentId(Long parentId);

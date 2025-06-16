@@ -7,3 +7,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+  elasticsearch:
+    uris: http://localhost:9999  # 무시됨 - test코드에서 덮어쓰는중
+    username: elasticsearch
+    password : 1234
+
+logging:
+  level:
+    org.springframework: DEBUG
+    org.springframework.boot.autoconfigure: DEBUG
+    org.testcontainers: DEBUG

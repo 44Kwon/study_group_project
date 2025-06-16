@@ -81,5 +81,6 @@ public class PostDto {
     public static class PostBookMarkResponse{
         private Long postId;
         private String title;
+        private Long studyGroupId;
     }
 }

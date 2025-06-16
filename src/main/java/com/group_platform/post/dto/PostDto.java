@@ -73,4 +73,13 @@ public class PostDto {
         private Long id;
         private boolean status;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostBookMarkResponse{
+        private Long postId;
+        private String title;
+    }
 }

@@ -1,8 +1,10 @@
 package com.group_platform.user.controller;
 
+import com.group_platform.post.dto.PostDto;
 import com.group_platform.response.ResponseDto;
 import com.group_platform.security.dto.CustomUserDetails;
 import com.group_platform.user.dto.UserDto;
+import com.group_platform.user.dto.UserMyProfileDto;
 import com.group_platform.user.dto.UserResponseDto;
 import com.group_platform.user.service.UserService;
 import com.group_platform.util.UriComponent;
@@ -13,6 +15,9 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -62,10 +67,19 @@ public class UserController {
     @GetMapping("/users/my")
     @Operation(summary = "나의 정보 조회")
     public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        UserResponseDto userResponse = userService.getUser(userDetails.getId());
+        UserMyProfileDto myUserResponse = userService.getMyUser(userDetails.getId());
         return new ResponseEntity<>(
-                new ResponseDto.SingleResponseDto<>(userResponse), HttpStatus.OK);
+                new ResponseDto.SingleResponseDto<>(myUserResponse), HttpStatus.OK);
     }
+
+    //회원 정보 조회시 찜 페이지네이션
+    @GetMapping("/users/my/bookmarks")
+    public ResponseEntity<?> getMyBookmarks(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                            @PageableDefault(size = 10) Pageable pageable) {
+        Page<PostDto.PostBookMarkResponse> myPostBookmarks = userService.getMyPostBookmarks(userDetails.getId(), pageable);
+        return ResponseEntity.ok(new ResponseDto.MultipleResponseDto<>(myPostBookmarks.getContent(), myPostBookmarks));
+    }
+
 
     //회원 정보 조회(타인)
     @GetMapping("/users/{user-id}")

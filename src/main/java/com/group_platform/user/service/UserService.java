@@ -2,12 +2,20 @@ package com.group_platform.user.service;
 
 import com.group_platform.exception.BusinessLogicException;
 import com.group_platform.exception.ExceptionCode;
+import com.group_platform.post.bookmark.PostBookmark;
+import com.group_platform.post.dto.PostDto;
+import com.group_platform.post.mapper.PostBookmarkMapper;
+import com.group_platform.post.repository.PostBookmarkRepository;
+import com.group_platform.response.PageInfo;
 import com.group_platform.user.dto.UserDto;
+import com.group_platform.user.dto.UserMyProfileDto;
 import com.group_platform.user.dto.UserResponseDto;
 import com.group_platform.user.entity.User;
 import com.group_platform.user.mapper.UserMapper;
 import com.group_platform.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +27,14 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final PostBookmarkRepository postBookmarkRepository;
+    private final PostBookmarkMapper postBookmarkMapper;
 
     //회원가입
     public Long creatUser(UserDto.CreateRequest createRequest) {
@@ -120,10 +131,35 @@ public class UserService {
     }
 
     //회원 조회(내 페이지)
+    //찜 조회 추가
+    @Transactional(readOnly = true)
+    public UserMyProfileDto getMyUser(Long userId) {
+        User user = validateUserWithUserId(userId);
+        //찜 조회
+        Page<PostBookmark> postMyBookmark = postBookmarkRepository.findPostMyBookmark(userId, PageRequest.of(0, 10));
+        List<PostDto.PostBookMarkResponse> postBookMarkResponses = postBookmarkMapper.postBookmarksToPostBookmarkResponse(postMyBookmark.getContent());
+
+        UserMyProfileDto userMyProfileDto = userMapper.userToUserMyProfileDto(user);
+        userMyProfileDto.setBookmarks(postBookMarkResponses);
+        userMyProfileDto.setBookmarksPage(
+                new PageInfo(postMyBookmark.getNumber()+1, postMyBookmark.getSize(), postMyBookmark.getTotalElements(), postMyBookmark.getTotalPages()));
+        return userMyProfileDto;
+    }
+
+    //찜 페이지네이션
+    @Transactional(readOnly = true)
+    public Page<PostDto.PostBookMarkResponse> getMyPostBookmarks(Long userId, Pageable pageable) {
+        User user = validateUserWithUserId(userId);
+        Page<PostBookmark> postMyBookmark = postBookmarkRepository.findPostMyBookmark(userId, pageable);
+        List<PostDto.PostBookMarkResponse> postBookMarkResponses = postBookmarkMapper.postBookmarksToPostBookmarkResponse(postMyBookmark.getContent());
+        return new PageImpl<>(postBookMarkResponses, pageable, postMyBookmark.getTotalElements());
+    }
+
+
+    //회원 조회(다른 사용자 조회)
     @Transactional(readOnly = true)
     public UserResponseDto getUser(Long userId) {
         User user = validateUserWithUserId(userId);
-        System.out.println(user.getUsername());
         return userMapper.UserToUserResponseDto(user);
     }
 
@@ -137,8 +173,19 @@ public class UserService {
     //만약 성능문제가 생긴다면 bulk delete JPQL 사용해야함 => 그러면 casacde 동작안함
     public void deleteExpiredUsers() {
         LocalDateTime cutoff = LocalDateTime.now().minusDays(30);
+        log.info("[UserCleanupScheduler] 탈퇴 후 30일 지난 유저 삭제 작업 시작. 기준 시각: {}", cutoff);
         List<User> users = userRepository.findExpiredWithdrawnUsers(cutoff);
+        if (users.isEmpty()) {
+            log.info("[UserCleanupScheduler] 삭제할 유저 없음. 작업 종료.");
+            return;
+        }
+
+        log.info("[UserCleanupScheduler] 삭제 대상 유저 수: {}", users.size());
+        for (User user : users) {
+            log.info("[UserCleanupScheduler] 삭제 대상 유저 ID: {}, 이메일: {}", user.getId(), user.getEmail());
+        }
         userRepository.deleteAll(users);
+        log.info("[UserCleanupScheduler] 탈퇴 유저 삭제 작업 완료. 총 삭제 수: {}", users.size());
     }
 
 

@@ -1,6 +1,7 @@
 package com.group_platform.user.mapper;
 
 import com.group_platform.user.dto.UserDto;
+import com.group_platform.user.dto.UserMyProfileDto;
 import com.group_platform.user.dto.UserResponseDto;
 import com.group_platform.user.entity.User;
 import org.mapstruct.Mapper;
@@ -17,4 +18,6 @@ public interface UserMapper {
 
     //게시글,댓글 등에서 쓰는 사용자 정보
     UserDto.UserProfileDto userToUserProfileDto(User user);
+
+    UserMyProfileDto userToUserMyProfileDto(User user);
 }

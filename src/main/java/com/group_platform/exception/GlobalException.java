@@ -121,7 +121,7 @@ public class GlobalException {
     public ResponseEntity<ErrorResponse> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException e) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, "다른 사용자가 변경 중입니다. 잠시 후 시도해주세요"));
+                .body(ErrorResponse.of(HttpStatus.CONFLICT, "다른 사용자가 변경 중입니다. 잠시 후 시도해주세요"));
     }
 
     //content-type이 지원하지 않는 타입일 때

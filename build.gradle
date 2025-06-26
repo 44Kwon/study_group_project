@@ -64,6 +64,10 @@ dependencies {
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
 
+    //Spring Retry 기능
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'  // AOP 지원
+
     //테스트전용 h2
     testRuntimeOnly 'com.h2database:h2'
 }

@@ -1,7 +1,9 @@
 package com.group_platform.sutdygroup.repository;
 
+import com.group_platform.post.repository.elasticsearch.PostSearchRepository;
 import com.group_platform.sutdygroup.dto.StudyGroupDto;
 import com.group_platform.sutdygroup.entity.StudyGroup;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -25,6 +28,15 @@ class CustomStudyGroupRepositoryTest {
 
     @Autowired
     private StudyGroupRepository studyGroupRepository;
+
+    @MockitoBean
+    private PostSearchRepository postSearchRepository;
+
+    @BeforeEach
+    void setUp() {
+        // 테스트 전 데이터 초기화
+        studyGroupRepository.deleteAll();
+    }
 
     @DisplayName("QueryDsl을 사용한 검색쿼리 테스트")
     @Test
@@ -53,7 +65,7 @@ class CustomStudyGroupRepositoryTest {
 
         studyGroupRepository.saveAll(List.of(studyGroup1,studyGroup2,studyGroup3,studyGroup4,studyGroup5));
 
-        Pageable pageable = PageRequest.of(0    , 10, Sort.by(Sort.Direction.ASC, "id"));
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
 
         //when
         Page<StudyGroupDto.ResponseList> result1 = studyGroupRepository.searchStudyGroups("studyName5", pageable);

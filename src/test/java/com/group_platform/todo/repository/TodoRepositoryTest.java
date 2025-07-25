@@ -1,5 +1,6 @@
 package com.group_platform.todo.repository;
 
+import com.group_platform.post.repository.elasticsearch.PostSearchRepository;
 import com.group_platform.sutdygroup.entity.StudyGroup;
 import com.group_platform.sutdygroup.repository.StudyGroupRepository;
 import com.group_platform.todo.entity.Todo;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -33,6 +35,9 @@ class TodoRepositoryTest {
     private StudyGroupRepository studyGroupRepository;
     @Autowired
     private UserRepository userRepository;
+
+    @MockitoBean
+    private PostSearchRepository postSearchRepository;
 
     @DisplayName("나에게 할당된 Todo들 가져오기")
     @Test
@@ -90,7 +95,7 @@ class TodoRepositoryTest {
 
         //then
         assertThat(myAssignedTodo).hasSize(2)
-                .extracting("title")
+                .extracting(Todo::getTitle)
                 .containsExactlyInAnyOrder("title1", "title3");
 
     }

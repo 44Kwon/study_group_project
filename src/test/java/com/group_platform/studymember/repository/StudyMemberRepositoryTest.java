@@ -1,5 +1,6 @@
 package com.group_platform.studymember.repository;
 
+import com.group_platform.post.repository.elasticsearch.PostSearchRepository;
 import com.group_platform.studymember.entity.StudyMember;
 import com.group_platform.sutdygroup.entity.StudyGroup;
 import com.group_platform.sutdygroup.repository.StudyGroupRepository;
@@ -15,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -29,6 +31,9 @@ class StudyMemberRepositoryTest {
     private StudyGroupRepository studyGroupRepository;
     @Autowired
     private UserRepository userRepository;
+
+    @MockitoBean
+    private PostSearchRepository postSearchRepository;
 
     @BeforeAll
     void setUp() {

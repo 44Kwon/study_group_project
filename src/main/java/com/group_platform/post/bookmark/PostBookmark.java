@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "post_bookmarks")
 @NoArgsConstructor
@@ -21,7 +23,7 @@ public class PostBookmark {
     private PostBookmarkId id;
 
     @CreationTimestamp
-    private Long createdAt;
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("postId") // 복합키에서 postId를 사용하여 연관 관계를 설정
@@ -36,6 +38,6 @@ public class PostBookmark {
     public void bookmarkPost(Post post, User user) {
         this.post = post;
         this.user = user;
-        this.id = new PostBookmarkId(post.getId(), user.getId());
+        this.id = new PostBookmarkId(user.getId(), post.getId());
     }
 }

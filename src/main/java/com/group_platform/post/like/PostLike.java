@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "post_likes")
 @NoArgsConstructor
@@ -20,7 +22,7 @@ public class PostLike {
     private PostLikeId id;
 
     @CreationTimestamp
-    private Long createdAt;
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)  //기본값이 Eager이기 때문에 Lazy로 변경
     @MapsId("postId")

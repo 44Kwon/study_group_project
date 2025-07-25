@@ -13,6 +13,7 @@ public interface PostBookmarkRepository extends JpaRepository<PostBookmark, Long
     void deleteByUserIdAndPostId(Long userId, Long postId);
 
     //북마크 게시글들 가져오기
-    @Query("SELECT pb FROM PostBookmark pb JOIN FETCH pb.user WHERE pb.id.userId = :userId ORDER BY pb.createdAt DESC")
+    //향후 DTO로 변경 예정 -> post를 다 가져올때에 content까지 다 가져오는 문제 떄문에 성능 저하예상-> 속도 비교해볼것
+    @Query("SELECT pb FROM PostBookmark pb JOIN FETCH pb.post WHERE pb.id.userId = :userId ORDER BY pb.createdAt DESC")
     Page<PostBookmark> findPostMyBookmark(Long userId,Pageable pageable);
 }

@@ -1,6 +1,7 @@
 package com.group_platform.todo.repository;
 
 import com.group_platform.todo.dto.TodoDto;
+import com.group_platform.todo.entity.Todo;
 import com.group_platform.todo.entity.TodoUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,6 +18,8 @@ public interface TodoUserRepository extends JpaRepository<TodoUser, Long>, Custo
     void deleteAllInBatchByTodoId(Long todoId);
     @Query("SELECT tu FROM TodoUser tu JOIN FETCH tu.user WHERE tu.todo.id = :todoId")
     List<TodoUser> findByTodoUserWithUsername(Long todoId);
+
+    long countByTodo(Todo todo);
 
     // dto조회 시 Alias가 안먹힘...
     // 중첩클래스로 인해 인식을 못하는듯 함

@@ -29,6 +29,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     //redis session
     implementation 'org.springframework.session:spring-session-data-redis'
+    //Redisson 의존성 추가
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.2'
+
 
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'

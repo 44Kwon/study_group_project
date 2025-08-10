@@ -1,6 +1,8 @@
 package com.group_platform.exception;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import com.group_platform.response.ErrorResponse;
+import com.group_platform.webhook.SlackWebhookService;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,12 @@ import java.util.Objects;
 @RestControllerAdvice
 @Slf4j
 public class GlobalException {
+
+    private final SlackWebhookService slackWebhookService;
+
+    public GlobalException(SlackWebhookService slackWebhookService) {
+        this.slackWebhookService = slackWebhookService;
+    }
 
     //500번대 서버 에러 처리
     @ExceptionHandler(Exception.class)
@@ -130,5 +138,14 @@ public class GlobalException {
         return ResponseEntity
                 .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
                 .body(ErrorResponse.of(HttpStatus.UNSUPPORTED_MEDIA_TYPE,"지원하지 않는 Content-Type입니다"));
+    }
+
+    @ExceptionHandler(ElasticsearchException.class)
+    public ResponseEntity<ErrorResponse> handleElasticsearchException(ElasticsearchException e) {
+        log.error("Elasticsearch 오류 발생: {}", e.getMessage(), e);
+        slackWebhookService.sendMessage("[알림] Elasticsearch 장애 발생 에러 로그 확인 바랍니다. " + e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "Elasticsearch 오류가 발생했습니다. 관리자에게 문의하세요."));
     }
 }
